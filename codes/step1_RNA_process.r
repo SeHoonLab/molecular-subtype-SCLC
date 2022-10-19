@@ -519,7 +519,7 @@ for(i_name in c("ASCL1 & ND1 Shared targets", "ASCL1 high signatures cell line",
 ####################### TUFT cell marker, from all gene cpm
 
 
-SCLC_cpm_raw = read.table("./log2_CPM_n226_nonGeneFilter.txt")[,SCLC_subtype_WTS_meta$WTS_ID]
+SCLC_cpm_raw = read.table(paste0(work_dir, "log2_CPM_n226_nonGeneFilter.txt"))[,SCLC_subtype_WTS_meta$WTS_ID]
 SCLC_cpm_Rank_raw <- rankGenes(SCLC_cpm_raw)
 
 SingScore <- simpleScore(
