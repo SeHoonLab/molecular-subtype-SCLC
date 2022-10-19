@@ -807,7 +807,7 @@ for(i_poster_gene in c("NE_signature", "non-NE_signature")){
 
 
 ##### Tuft cell marker
-SCLC_cpm_raw = read.table("./expr_matrix/log2_CPM_n226_nonGeneFilter.txt")[,SCLC_subtype_WTS_meta$WTS_ID]
+SCLC_cpm_raw = read.table("../step1/log2_CPM_n226_nonGeneFilter.txt")[,SCLC_subtype_WTS_meta$WTS_ID]
 
 SCLC_cpm_Rank_raw <- rankGenes(SCLC_cpm_raw)
 
