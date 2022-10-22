@@ -913,6 +913,7 @@ p = ggsurvplot(
 	surv.scale = "percent",
 	risk.table = TRUE, risk.table.height = 0.3, conf.int = F)
 p$plot <- p$plot + thickness
+print(p)
 dev.off()
 
 
