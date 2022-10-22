@@ -1134,3 +1134,4 @@ print(plot_grid(p1 + thickness, p2 + thickness ,p3 + thickness, p4 + thickness, 
 dev.off()
 
 
+system("rm Rplots.pdf")

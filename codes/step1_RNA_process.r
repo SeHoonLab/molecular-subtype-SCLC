@@ -826,62 +826,95 @@ dev.off()
 ###############
 ##### Fig S3F
 
-NE_SCLC_subtype_WTS_meta = SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype %in% c("A", "trans", "N"),]
-NE_SCLC_cpm = rbind(log2.CPM.count[c("NEUROD1", "ASCL1"),NE_SCLC_subtype_WTS_meta$WTS_ID], t(NE_SCLC_subtype_WTS_meta[, c("ASCL1_high_signatures_cell_line", "ND1_high_signatures_cell_line")]))
-
-pt.matrix <- t(apply(NE_SCLC_cpm,1,function(x){(x-mean(x))/sd(x)}))
-#pt.matrix <- apply(pt.matrix,2,function(x){(x-mean(x))/sd(x)})
-#rownames(pt.matrix) <- rownames(NE_SCLC_cpm); colnames(pt.matrix) = colnames(NE_SCLC_cpm)
-i_cluster_medhod = "ward.D2"
 i_distance_method = "maximum"
+i_cluster_medhod = "ward.D2"
+pt.matrix = t(SCLC_subtype_WTS_meta[, c("Tuft_cell_marker", "NE_25_genelist")])
 
-k_cluster = 3
+pt.matrix <- t(apply(pt.matrix,1,function(x){(x-mean(x))/sd(x)}))
+
 set.seed(100)
-cpm_heatmap = Heatmap(pt.matrix, column_split = k_cluster, clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"))
+
+k_cluster = 2
+
+cpm_heatmap = Heatmap(pt.matrix, column_split = k_cluster, clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"), cluster_rows=FALSE)
 cpm_heatmap_ht = draw(cpm_heatmap); cpm_heatmap_tr_order = column_order(cpm_heatmap_ht)
-pdf(paste0(work_dir, "Fig_S3F_WTS_clustering_class_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 12, height = 4)
+pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
 print(cpm_heatmap_ht)
 dev.off()
-tmp = rep("cluster", ncol(NE_SCLC_cpm))
-tmp[cpm_heatmap_tr_order[[1]]] = "1"; tmp[cpm_heatmap_tr_order[[2]]] = "2"; tmp[cpm_heatmap_tr_order[[3]]] = "3"
-surv_df_SCLC_subtype_WTS_meta = NE_SCLC_subtype_WTS_meta
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = factor(tmp, levels = c("1", "2", "3"))
 
-NEUROD1_index = which.max(c(mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[1]]]), mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[2]]]), mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[3]]])))
-ASCL1_index = which.max(c(mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[1]]]), mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[2]]]), mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[3]]])))
+POU2F3_index = which.max(c(mean(pt.matrix["Tuft_cell_marker",cpm_heatmap_tr_order[[1]]]),
+			    mean(pt.matrix["Tuft_cell_marker",cpm_heatmap_tr_order[[2]]])))
+tmp = rep("nonP", ncol(pt.matrix))
+tmp[seq(1,ncol(pt.matrix)) %in% cpm_heatmap_tr_order[[POU2F3_index]]] = "P"
+print(table(tmp))
+column_split = tmp
 
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = as.character(surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster)
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster==as.character(NEUROD1_index)] = "N"
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster==as.character(ASCL1_index)] = "A"
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[!surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster %in% c("A", "N")] = "trans"
-surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = factor(surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster, levels = c("A", "trans", "N"))
+rownames(pt.matrix) = c(1,2)
+pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
+Heatmap(pt.matrix, column_split = factor(column_split, levels = c("nonP", "P")), clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"), cluster_rows=FALSE)
+dev.off()
+
+
+SCLC_cpm = rbind(log2.CPM.count[c("NEUROD1", "ASCL1"),SCLC_subtype_WTS_meta$WTS_ID], t(SCLC_subtype_WTS_meta[, c("ASCL1_high_signatures_cell_line", "ND1_high_signatures_cell_line")]))
+SCLC_cpm = SCLC_cpm[c("ASCL1", "ASCL1_high_signatures_cell_line", "NEUROD1", "ND1_high_signatures_cell_line"),]
+
+pt.matrix <- t(apply(SCLC_cpm,1,function(x){(x-mean(x))/sd(x)}))
+#rownames(pt.matrix) <- rownames(NE_SCLC_cpm); colnames(pt.matrix) = colnames(NE_SCLC_cpm)
+
+pt.matrix=pt.matrix[,column_split!="P"]
+set.seed(100)
+i_distance_method = "manhattan"
+i_cluster_medhod = "complete"
+#pt.matrix2 = pt.matrix
+#rownames(pt.matrix2) = c(1,2,3,4)
+cpm_heatmap = Heatmap(pt.matrix, column_split = 3, clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"), cluster_rows=FALSE)
+cpm_heatmap_ht = draw(cpm_heatmap); cpm_heatmap_tr_order = column_order(cpm_heatmap_ht)
+
+dev.off()
+pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_NE_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 3)
+print(cpm_heatmap_ht)
+dev.off()
+tmp = rep("cluster", ncol(pt.matrix))
+tmp[cpm_heatmap_tr_order[[1]]] = "1"; tmp[cpm_heatmap_tr_order[[2]]] = "2"; tmp[cpm_heatmap_tr_order[[3]]] = "3";
+surv_df_SCLC_subtype_WTS_meta = SCLC_subtype_WTS_meta
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = rep("nonAnno", nrow(surv_df_SCLC_subtype_WTS_meta))
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[!surv_df_SCLC_subtype_WTS_meta$WTS_ID %in% colnames(pt.matrix)] = "P"
+
+
+NEUROD1_index = which.max(c(mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[1]]]),
+			    mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[2]]]),
+			    mean(pt.matrix["NEUROD1",cpm_heatmap_tr_order[[3]]])))
+ASCL1_index = which.max(c(mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[1]]]),
+			  mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[2]]]),
+			  mean(pt.matrix["ASCL1",cpm_heatmap_tr_order[[3]]])))
+
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[surv_df_SCLC_subtype_WTS_meta$WTS_ID %in% colnames(pt.matrix)[seq(1, ncol(pt.matrix)) %in% cpm_heatmap_tr_order[[NEUROD1_index]]]] = "N"
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[surv_df_SCLC_subtype_WTS_meta$WTS_ID %in% colnames(pt.matrix)[seq(1, ncol(pt.matrix)) %in% cpm_heatmap_tr_order[[ASCL1_index]]]] = "A"
+
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster[!surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster %in% c("A", "N", "P")] = "trans"
+surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = factor(surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster, levels = c("A", "trans", "N", "P"))
 
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~Heatmap_cluster, data = surv_df_SCLC_subtype_WTS_meta[surv_df_SCLC_subtype_WTS_meta$ini_stage=="ED",])
 cox_fit = coxph(Surv(OS_time, OS_event==1)~Heatmap_cluster, data = surv_df_SCLC_subtype_WTS_meta[surv_df_SCLC_subtype_WTS_meta$ini_stage=="ED",])
-
-pdf(paste0(work_dir, "Fig_S3G_WTS_clustering_class_", i_cluster_medhod,"_",i_distance_method,"_K,",k_cluster, "_cluster_cpm_matrix_Survplot.pdf"), width = 8, height = 6.2)
-        print(
-                ggsurvplot(
-                        fit = OS_fit,
-                        size = 1.5,
-                        xlab = "Months since Treatment",
-                        ylab = "OS",
-                        surv.median.line = "hv",
-                        palette = "nejm",
-                        xlim=c(0,30),
-                        ylim=c(0,1),
-                        break.time.by=3,
-                        title=paste0("OS: By Heatmap Cluster:", k_cluster, " ", i_distance_method),
-                        font.title=c("bold"), font.subtitle=c("italic"),
-                        legend.title="Strata",
-                        pval = T, pval.coord = c(1, 0.25),
-                        surv.scale = "percent",
-                        risk.table = TRUE, risk.table.height = 0.3, conf.int = F),
-        surv.plot.height = NULL,
-        risk.table.height = NULL,
-        ncensor.plot.height = NULL,
-        newpage = TRUE)
+pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_classification_survplot.pdf"), width = 7, height = 5.5)
+p = ggsurvplot(
+	fit = OS_fit,
+	size = 1.5,
+	xlab = "Months since Treatment",
+	ylab = "OS",
+	surv.median.line = "hv",
+	palette = "nejm",
+	xlim=c(0,30),
+	ylim=c(0,1),
+	break.time.by=3,
+	font.title=c("bold"), font.subtitle=c("italic"),
+	legend.title="Strata",
+	pval = F, pval.coord = c(1, 0.25),
+	surv.scale = "percent",
+	risk.table = TRUE, risk.table.height = 0.3, conf.int = F)
+p$plot <- p$plot + thickness
 dev.off()
+
 
 
 OS_fit_summary = data.frame(summary(OS_fit)$table)
