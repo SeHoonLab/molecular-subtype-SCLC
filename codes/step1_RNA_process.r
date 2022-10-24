@@ -599,147 +599,54 @@ ggplotConfusionMatrix <- function(m){
 }
 
 
-##### 4 * 4, Fig S1D Up left
-ggconfusion_P = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
-ggconfusion_P = ggconfusion_P[ggconfusion_P$SCLC_subtype!="non-IHC",]
-
-ggconfusion_P$WTS_subtype = as.character(ggconfusion_P$WTS_subtype)
-ggconfusion_P$WTS_subtype[ggconfusion_P$WTS_subtype %in% c("A", "trans")] = "A&trans"
-ggconfusion_P$SCLC_subtype = as.character(ggconfusion_P$SCLC_subtype)
-ggconfusion_P$SCLC_subtype[ggconfusion_P$SCLC_subtype %in% c("A", "trans")] = "A&trans"
-
-cfm3 <- confusionMatrix(factor(ggconfusion_P$WTS_subtype, levels = c("A&trans", "N", "P", "TN")),
-                        factor(ggconfusion_P$SCLC_subtype, levels = c("A&trans", "N", "P", "TN")))
-ggcfm3 <- ggplotConfusionMatrix(cfm3)
-ggsave(paste0(work_dir, "Fig_S1D_Upleft_WTS_subtype_4.4_cfm.png"), plot = ggcfm3, width = 9, height = 7)
-
-###### 3 * 3, Fig S1E Down left
-ggconfusion_no_TN = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
-ggconfusion_no_TN = ggconfusion_no_TN[ggconfusion_no_TN$SCLC_subtype!="non-IHC",]
-ggconfusion_no_TN = ggconfusion_no_TN[ggconfusion_no_TN$WTS_subtype!="TN",]
-
-ggconfusion_no_TN$WTS_subtype = as.character(ggconfusion_no_TN$WTS_subtype)
-ggconfusion_no_TN$WTS_subtype[ggconfusion_no_TN$WTS_subtype %in% c("A", "trans")] = "A&trans"
-ggconfusion_no_TN$SCLC_subtype = as.character(ggconfusion_no_TN$SCLC_subtype)
-ggconfusion_no_TN$SCLC_subtype[ggconfusion_no_TN$SCLC_subtype %in% c("A", "trans")] = "A&trans"
-
-cfm3 <- confusionMatrix(factor(ggconfusion_no_TN$WTS_subtype, levels = c("A&trans", "N", "P")),
-                        factor(ggconfusion_no_TN$SCLC_subtype, levels = c("A&trans", "N", "P")))
-ggcfm3 <- ggplotConfusionMatrix(cfm3)
-ggsave(paste0(work_dir, "Fig_S1D_Downleft_WTS_subtype_3.3cfm.png"), plot = ggcfm3, width = 9, height = 7)
-
-
 ##### Calculate kappa
 ggconfusion_P = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
 ggconfusion_P = ggconfusion_P[ggconfusion_P$SCLC_subtype!="non-IHC",]
-cfm3 <- confusionMatrix(factor(ggconfusion_P$WTS_subtype, levels = c("A", "trans", "N", "P", "TN")),
-                        factor(ggconfusion_P$SCLC_subtype, levels = c("A", "trans", "N", "P", "TN")))
-ggcfm3 <- ggplotConfusionMatrix(cfm3)
-ggconfusion_P = ggconfusion_P[ggconfusion_P$WTS_subtype!="TN",]
+ggconfusion_P = ggconfusion_P[ggconfusion_P$WTS_subtype!="TN" & ggconfusion_P$SCLC_subtype!="TN",]
 kappa_df = ggconfusion_P
 kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
 kappa_df$WTS_subtype[kappa_df$WTS_subtype!="P"] = "non-P"
 kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
 kappa_df$SCLC_subtype[kappa_df$SCLC_subtype!="P"] = "non-P"
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("P", "non-P")),
-                        factor(kappa_df$SCLC_subtype, levels = c("P", "non-P")))
-paste("P Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
+cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("P", "non-P")),
+			factor(kappa_df$WTS_subtype, levels = c("P", "non-P")))
+print("Fig S1F P and nonP subtype confusion matrix\n")
+print(cfm3)
 
-kappa_df = ggconfusion_P[ggconfusion_P$WTS_subtype!="P", ]
-kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
-kappa_df$WTS_subtype[kappa_df$WTS_subtype!="N"] = "non-N"
-kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
-kappa_df$SCLC_subtype[kappa_df$SCLC_subtype!="N"] = "non-N"
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("N", "non-N")),
-                        factor(kappa_df$SCLC_subtype, levels = c("N", "non-N")))
-paste("N Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
+
+ggconfusion_P = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
+ggconfusion_P = ggconfusion_P[ggconfusion_P$SCLC_subtype!="non-IHC",]
+ggconfusion_P = ggconfusion_P[!ggconfusion_P$WTS_subtype %in% c("TN", "P") & !ggconfusion_P$SCLC_subtype %in% c("TN", "P"),]
+kappa_df = ggconfusion_P
+cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("A", "trans", "N")),
+                        factor(kappa_df$WTS_subtype, levels = c("A", "trans", "N")))
+print("Fig S1F A, trans, and N subtype confusion matrix\n")
+print(cfm3)
 
 
 kappa_df = ggconfusion_P
 kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
 kappa_df$WTS_subtype[kappa_df$WTS_subtype %in% c("A", "trans")] = "A&trans"
-kappa_df$WTS_subtype[kappa_df$WTS_subtype %in% c("N", "P")] = "N&P"
 kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
 kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("A", "trans")] = "A&trans"
-kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("N", "P")] = "N&P"
+cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("N", "A&trans")),
+                        factor(kappa_df$WTS_subtype, levels = c("N", "A&trans")))
 
-
-kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("A&trans", "N&P")),
-                        factor(kappa_df$SCLC_subtype, levels = c("A&trans", "N&P")))
-paste("A trans Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
-
-
-###################
-##### Fig S1D right
-ggconfusion_P = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
-ggconfusion_P = ggconfusion_P[ggconfusion_P$SCLC_subtype!="non-IHC",]
-
-ggconfusion_P$WTS_subtype = as.character(ggconfusion_P$WTS_subtype)
-ggconfusion_P$WTS_subtype[ggconfusion_P$WTS_subtype %in% c("N", "trans")] = "N&trans"
-ggconfusion_P$SCLC_subtype = as.character(ggconfusion_P$SCLC_subtype)
-ggconfusion_P$SCLC_subtype[ggconfusion_P$SCLC_subtype %in% c("N", "trans")] = "N&trans"
-
-cfm3 <- confusionMatrix(factor(ggconfusion_P$WTS_subtype, levels = c("A", "N&trans", "P", "TN")),
-                        factor(ggconfusion_P$SCLC_subtype, levels = c("A", "N&trans", "P", "TN")))
-ggcfm3 <- ggplotConfusionMatrix(cfm3)
-ggsave(paste0(work_dir, "Fig_S1D_Upright_WTS_subtype_4.4_cfm.png"), plot = ggcfm3, width = 7, height = 7)
-
-
-ggconfusion_no_TN = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
-ggconfusion_no_TN = ggconfusion_no_TN[ggconfusion_no_TN$SCLC_subtype!="non-IHC",]
-ggconfusion_no_TN = ggconfusion_no_TN[ggconfusion_no_TN$WTS_subtype!="TN",]
-
-ggconfusion_no_TN$WTS_subtype = as.character(ggconfusion_no_TN$WTS_subtype)
-ggconfusion_no_TN$WTS_subtype[ggconfusion_no_TN$WTS_subtype %in% c("N", "trans")] = "N&trans"
-ggconfusion_no_TN$SCLC_subtype = as.character(ggconfusion_no_TN$SCLC_subtype)
-ggconfusion_no_TN$SCLC_subtype[ggconfusion_no_TN$SCLC_subtype %in% c("N", "trans")] = "N&trans"
-
-cfm3 <- confusionMatrix(factor(ggconfusion_no_TN$WTS_subtype, levels = c("A", "N&trans", "P")),
-                        factor(ggconfusion_no_TN$SCLC_subtype, levels = c("A", "N&trans", "P")))
-ggcfm3 <- ggplotConfusionMatrix(cfm3)
-ggsave(paste0(work_dir, "Fig_S1D_Downright_WTS_subtype_3.3cfm.png"), plot = ggcfm3, width = 7, height = 7)
-
-
-
-
-ggconfusion_P = SCLC_subtype_WTS_meta[, c("WTS_subtype", "SCLC_subtype")]
-ggconfusion_P = ggconfusion_P[ggconfusion_P$SCLC_subtype!="non-IHC",]
-ggconfusion_P = ggconfusion_P[ggconfusion_P$WTS_subtype!="TN",]
+print("Fig S1F, N and A&trans subtype confusion matrix")
+print(cfm3)
 
 kappa_df = ggconfusion_P
-kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
-kappa_df$WTS_subtype[kappa_df$WTS_subtype!="P"] = "non-P"
-kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
-kappa_df$SCLC_subtype[kappa_df$SCLC_subtype!="P"] = "non-P"
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("P", "non-P")),
-                        factor(kappa_df$SCLC_subtype, levels = c("P", "non-P")))
-paste("P Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
-
-kappa_df = ggconfusion_P[ggconfusion_P$WTS_subtype!="P", ]
 kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
 kappa_df$WTS_subtype[kappa_df$WTS_subtype %in% c("N", "trans")] = "N&trans"
 kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
 kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("N", "trans")] = "N&trans"
+cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("N&trans", "A")),
+                        factor(kappa_df$WTS_subtype, levels = c("N&trans", "A")))
+
+print("Fig S1F, N&trans and A subtype confusion matrix")
+print(cfm3)
 
 
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("N&trans", "A")),
-                        factor(kappa_df$SCLC_subtype, levels = c("N&trans", "A")))
-paste("N&trans Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
-
-
-kappa_df = ggconfusion_P
-kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
-kappa_df$WTS_subtype[kappa_df$WTS_subtype %in% c("trans", "N", "P")] = "non-A"
-
-kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
-kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("trans", "N", "P")] = "non-A"
-
-
-kappa_df$WTS_subtype = as.character(kappa_df$WTS_subtype)
-cfm3 <- confusionMatrix(factor(kappa_df$WTS_subtype, levels = c("non-A", "A")),
-                        factor(kappa_df$SCLC_subtype, levels = c("non-A", "A")))
-paste("A Accuracy", percent_format()(cfm3$overall[1]), "Kappa", percent_format()(cfm3$overall[2]))
 
 
 #####################
@@ -913,7 +820,6 @@ p = ggsurvplot(
 	surv.scale = "percent",
 	risk.table = TRUE, risk.table.height = 0.3, conf.int = F)
 p$plot <- p$plot + thickness
-print(p)
 dev.off()
 
 
