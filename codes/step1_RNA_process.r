@@ -143,7 +143,6 @@ plot_N_versus_A = EnhancedVolcano(N_versus_A$table,
                  y = 'PValue',
                  pCutoff = 0.05,
                  pointSize = 1.5,
-                 title = "P versus Neuro, control is Neuro",
                  labSize = 5.0)
 ggsave(paste0(work_dir, "plot_N_versus_A_EnhancedVolcanoPlot.png"), plot_N_versus_A, width = 7, height = 7)
 write.table(N_versus_A$table, paste0(work_dir, "plot_N_versus_A_DEG.txt"), col.names = TRUE, row.names = TRUE, sep = '\t', quote = FALSE)
