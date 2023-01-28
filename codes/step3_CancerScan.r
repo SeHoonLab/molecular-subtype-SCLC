@@ -31,7 +31,7 @@ colnames(matched_meta_info) = c("Tumor_Sample_Barcode", colnames(SCLC_meta))
 tmp = as.character(lapply(matched_meta_info$SGI_ID, function(x) {strsplit(gsub("^ ", "", x), " ")[[1]][1]}))
 matched_meta_info$Tumor_Sample_Barcode = tmp
 rownames(matched_meta_info) = tmp
-matched_meta_info$Atrans_N_P = lapply(matched_meta_info$SCLC_subtype, function(x) {if(is.na(x)){return("NA")}else if(x=="A" | x=="trans"){return("A&trans")}else{return(x)}}) %>% unlist() %>% as.character()
+matched_meta_info$AAN_N_P = lapply(matched_meta_info$SCLC_subtype, function(x) {if(is.na(x)){return("NA")}else if(x=="A" | x=="AN"){return("A&AN")}else{return(x)}}) %>% unlist() %>% as.character()
 
 temp.maf<-read.maf(maf=maf.filename, cnTable =CNV, clinicalData = matched_meta_info)
 
@@ -107,7 +107,7 @@ pathway_and_gene_ordering[["gene list"]] = c(pathway_and_gene_ordering[["gene li
 pathway_and_gene_ordering[["annotation"]] = c(pathway_and_gene_ordering[["annotation"]][seq(1,34)], "MYCN", pathway_and_gene_ordering[["annotation"]][seq(35, length(pathway_and_gene_ordering[["annotation"]]))])
 
 pdf(paste0(plot_dir, "Fig3A_All_type_oncoplot_by_pathway_geneSet.pdf"), width = 16, height = 10)
-color_anno = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1"); names(color_anno) = c("A", "trans", "N", "P", "TN")
+color_anno = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1"); names(color_anno) = c("A", "AN", "N", "P", "TN")
 oncoplot(maf = laml, sortByAnnotation = TRUE, genes = c(pathway_and_gene_ordering[["gene list"]]), keepGeneOrder = TRUE, clinicalFeatures = c('SCLC_subtype'), annotationColor=list("SCLC_subtype"=color_anno))
 dev.off()
 
@@ -123,20 +123,20 @@ dev.off()
 damaging_laml = CustomsubsetMaf(laml, query = '(Hugo_Symbol %in% c("TP53", "RB1")) | (Variant_Classification %in% c("Frame_Shift_Del", "Frame_Shift_Ins", "Nonsense_Mutation", "Nonstop_Mutation", "Splice_Site", "Amp", "Del"))', mafObj = TRUE, fields = colnames(data.frame(laml@data))[seq(1,99)], clinQuery = 'SCLC_subtype != "TN"')
 
 #enrichment plot condition
-#cond 1: A&trans vs N
-#cond 2: A&trans vs N
+#cond 1: A&AN vs N
+#cond 2: A&AN vs N
 
-Cond1_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)], clinQuery = 'Atrans_N_P %in% c("A&trans", "N")')
-Cond2_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)], clinQuery = 'Atrans_N_P %in% c("A&trans", "P")')
+Cond1_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)], clinQuery = 'AAN_N_P %in% c("A&AN", "N")')
+Cond2_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)], clinQuery = 'AAN_N_P %in% c("A&AN", "P")')
 
-Cond1_maf_CE = clinicalEnrichment(maf = Cond1_maf, clinicalFeature = 'Atrans_N_P')
-pdf(paste0(plot_dir, "Fig3C_EnrichmentPlot_condition1_Atrans_vs_N_default_function_example.pdf"), width = 7, height = 4)
+Cond1_maf_CE = clinicalEnrichment(maf = Cond1_maf, clinicalFeature = 'AAN_N_P')
+pdf(paste0(plot_dir, "Fig3C_EnrichmentPlot_condition1_AAN_vs_N_default_function_example.pdf"), width = 7, height = 4)
 custom_plotEnrichmentResults(enrich_res = Cond1_maf_CE, pVal = 0.1, geneFontSize = 1, annoFontSize = 1)
 dev.off()
 
 
-Cond2_maf_CE = clinicalEnrichment(maf = Cond2_maf, clinicalFeature = 'Atrans_N_P')
-pdf(paste0(plot_dir, "Fig3B_EnrichmentPlot_condition2_A&trans_vs_P_custom_function_example.pdf"), width = 8, height = 6)
+Cond2_maf_CE = clinicalEnrichment(maf = Cond2_maf, clinicalFeature = 'AAN_N_P')
+pdf(paste0(plot_dir, "Fig3B_EnrichmentPlot_condition2_A&AN_vs_P_custom_function_example.pdf"), width = 8, height = 6)
 custom_plotEnrichmentResults(enrich_res = Cond2_maf_CE, pVal = 0.1, geneFontSize = 1, annoFontSize = 1)
 dev.off()
 
@@ -167,7 +167,7 @@ clinical_maf_subset$OS_event = as.numeric(clinical_maf_subset$OS_event)
 maf_subset_table = data.frame(table(clinical_maf_subset$SCLC_subtype))
 maf_subset_table$proportion = maf_subset_table$Freq/sum(maf_subset_table$Freq)
 rownames(maf_subset_table) = maf_subset_table[,1]
-maf_subset_table = maf_subset_table[c("A", "trans", "N", "P"),]
+maf_subset_table = maf_subset_table[c("A", "AN", "N", "P"),]
 orig_maf_subset_table = maf_subset_table[!is.na(maf_subset_table[,1]),]
 surv_results = list()
 for(i_gene in c(unique(plot_maf_subset$Hugo_Symbol), "ADGRA2_comb")){
@@ -180,23 +180,23 @@ for(i_gene in c(unique(plot_maf_subset$Hugo_Symbol), "ADGRA2_comb")){
                                                         function(x) {
                                                                 tmp = data.frame(table(clinical_maf_subset$SCLC_subtype[clinical_maf_subset$surv_classification==x]))
                                                                 rownames(tmp) = tmp[,1]
-                                                                tmp = tmp[c("A", "trans", "N", "P"),]
-                                                                tmp$Var1 = c("A", "trans", "N", "P")
+                                                                tmp = tmp[c("A", "AN", "N", "P"),]
+                                                                tmp$Var1 = c("A", "AN", "N", "P")
                                                                 tmp$Freq[is.na(tmp$Freq)] = 0
                                                                 return(tmp)
                                                         }) %>% data.frame()
                 surv_classification_count = surv_classification_count[,grepl("Freq", colnames(surv_classification_count))]
                 colnames(surv_classification_count) = c("WT", "Mutant")
-		rownames(surv_classification_count) = c("A", "trans", "N", "P")
+		rownames(surv_classification_count) = c("A", "AN", "N", "P")
                 surv_classification_count = surv_classification_count[!is.na(surv_classification_count[,1]),]
                 proportion_plot_df = data.frame(rownames(orig_maf_subset_table), orig_maf_subset_table$proportion, apply(surv_classification_count, 2, function(x) {x/sum(x)}))
                 colnames(proportion_plot_df) = c("SCLC_subtype", "subset_proportion", "WT", "Mutant")
 
-		tmp = apply(surv_classification_count[c("A", "trans"),], 2, function(x) {sum(x, na.rm = TRUE)})
+		tmp = apply(surv_classification_count[c("A", "AN"),], 2, function(x) {sum(x, na.rm = TRUE)})
 		tmp = rbind(tmp, apply(surv_classification_count[c("N", "P"),], 2, function(x) {sum(x, na.rm = TRUE)}))
 		surv_classification_count = tmp
-		rownames(surv_classification_count) = c("A&trans", "N&P")
-		#rownames(surv_classification_count) = c("A&trans", "N", "P")
+		rownames(surv_classification_count) = c("A&AN", "N&P")
+		#rownames(surv_classification_count) = c("A&AN", "N", "P")
 
                 surv_classification_proportion = t(data.frame(apply(surv_classification_count, 1, function(x) {x/sum(x)})))
 
@@ -259,7 +259,7 @@ Volcano_df$pvalue = as.numeric(Volcano_df$pvalue)
 Volcano_df$Fisher = as.numeric(Volcano_df$Fisher)
 Volcano_df$Mutant_samples  = as.numeric(Volcano_df$Mutant_samples)
 Volcano_df$Enriched_group = Volcano_df$Enriched
-Volcano_df$Enriched_group[Volcano_df$Enriched_group=="A.trans"] = "Enriched in A or tr"
+Volcano_df$Enriched_group[Volcano_df$Enriched_group=="A.AN"] = "Enriched in A or AN"
 ####################
 ####################
 Volcano_df = Volcano_df[Volcano_df$Mutant_samples>=3,]
@@ -301,11 +301,11 @@ damaging_laml = CustomsubsetMaf(laml, query = '(Hugo_Symbol %in% c("TP53", "RB1"
 
 damaging_N_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "N"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
 damaging_A_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "A"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
-damaging_trans_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "trans"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
+damaging_AN_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "AN"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
 
 CNV_A_type_maf_subset = CustomsubsetMaf(maf = laml, clinQuery = 'SCLC_subtype == "A"', query = '(Hugo_Symbol %in% c("TP53", "RB1")) | (Variant_Classification %in% c("Amp", "Del"))',
                                   mafObj = TRUE, fields = colnames(data.frame(laml@data))[seq(1,99)])
-CNV_trans_type_maf_subset = CustomsubsetMaf(maf = laml, clinQuery = 'SCLC_subtype == "trans"', query = '(Hugo_Symbol %in% c("TP53", "RB1")) | (Variant_Classification %in% c("Amp", "Del"))',
+CNV_AN_type_maf_subset = CustomsubsetMaf(maf = laml, clinQuery = 'SCLC_subtype == "AN"', query = '(Hugo_Symbol %in% c("TP53", "RB1")) | (Variant_Classification %in% c("Amp", "Del"))',
                                   mafObj = TRUE, fields = colnames(data.frame(laml@data))[seq(1,99)])
 CNV_N_type_maf_subset = CustomsubsetMaf(maf = laml, clinQuery = 'SCLC_subtype == "N"', query = '(Hugo_Symbol %in% c("TP53", "RB1")) | (Variant_Classification %in% c("Amp", "Del"))',
                                   mafObj = TRUE, fields = colnames(data.frame(laml@data))[seq(1,99)])
@@ -315,7 +315,7 @@ CNV_P_type_maf_subset = CustomsubsetMaf(maf = laml, clinQuery = 'SCLC_subtype ==
 
 
 SGI_results_of_pathways_results = data.frame()
-for(i_type in c("All","damaging_A", "damaging_trans", "damaging_N", "CNV_A", "CNV_trans", "CNV_N")){
+for(i_type in c("All","damaging_A", "damaging_AN", "damaging_N", "CNV_A", "CNV_AN", "CNV_N")){
         SGI_results_of_pathways = list()
         if(i_type == "All"){
                 plot_maf_subset = data.frame(laml@data)
@@ -369,8 +369,8 @@ SGI_results_of_pathways_results$SCLC_subtype = lapply(rownames(SGI_results_of_pa
        x = x[length(x)]
        if(x=="A"){
                return("SCLC-A")
-       }else if(x=="trans"){
-               return("SCLC-tr")
+       }else if(x=="AN"){
+               return("SCLC-AN")
        }else if(x=="N"){
                return("SCLC-N")
        }else if(x=="P"){
@@ -380,7 +380,7 @@ SGI_results_of_pathways_results$SCLC_subtype = lapply(rownames(SGI_results_of_pa
        }else{return(x)}
                                               }) %>% unlist %>% as.character()
 
-SGI_results_of_pathways_results$SCLC_subtype = factor(SGI_results_of_pathways_results$SCLC_subtype, levels = c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P", "SCLC-TN"))
+SGI_results_of_pathways_results$SCLC_subtype = factor(SGI_results_of_pathways_results$SCLC_subtype, levels = c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P", "SCLC-TN"))
 
 
 
@@ -398,9 +398,9 @@ CellCycle_df = SGI_results_of_pathways_results[grepl("Cell_Cycle_damaging", rown
 
 
 
-Fig3D_plot_df = data.frame(colSums(RTK.RAS_df[c("RTK.RAS_damaging_A", "RTK.RAS_damaging_trans"),c("matched_samples", "total_samples")]),
+Fig3D_plot_df = data.frame(colSums(RTK.RAS_df[c("RTK.RAS_damaging_A", "RTK.RAS_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(RTK.RAS_df["RTK.RAS_damaging_N",c("matched_samples", "total_samples")]))
-colnames(Fig3D_plot_df) = c("A&trans", "N")
+colnames(Fig3D_plot_df) = c("A&AN", "N")
 fisher.test(Fig3D_plot_df)
 p = ggplot(RTK.RAS_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
         ggtitle(paste0("RTK-RAS: ", round(fisher.test(Fig3D_plot_df)$p.value,3)))+ xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
@@ -409,9 +409,9 @@ p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727"))
 ggsave(paste0(plot_dir, "Fig3D_RTK.RAS_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
-Fig3D_plot_df = data.frame(colSums(NOTCH_df[c("NOTCH_damaging_A", "NOTCH_damaging_trans"),c("matched_samples", "total_samples")]),
+Fig3D_plot_df = data.frame(colSums(NOTCH_df[c("NOTCH_damaging_A", "NOTCH_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(NOTCH_df["NOTCH_damaging_N",c("matched_samples", "total_samples")]))
-colnames(Fig3D_plot_df) = c("A&trans", "N")
+colnames(Fig3D_plot_df) = c("A&AN", "N")
 fisher.test(Fig3D_plot_df)
 
 p = ggplot(NOTCH_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
@@ -421,9 +421,9 @@ p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727"))
 ggsave(paste0(plot_dir, "Fig3D_NOTCH_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
-Fig3D_plot_df = data.frame(colSums(PI3K_df[c("PI3K_damaging_A", "PI3K_damaging_trans"),c("matched_samples", "total_samples")]),
+Fig3D_plot_df = data.frame(colSums(PI3K_df[c("PI3K_damaging_A", "PI3K_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(PI3K_df["PI3K_damaging_N",c("matched_samples", "total_samples")]))
-colnames(Fig3D_plot_df) = c("A&trans", "N")
+colnames(Fig3D_plot_df) = c("A&AN", "N")
 fisher.test(Fig3D_plot_df)
 
 p = ggplot(PI3K_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
@@ -434,9 +434,9 @@ ggsave(paste0(plot_dir, "Fig3D_PI3K_by_samples.png"), plot = p, width = 2.8, hei
 
 
 
-Fig3D_plot_df = data.frame(colSums(TP53_df[c("TP53_damaging_A", "TP53_damaging_trans"),c("matched_samples", "total_samples")]),
+Fig3D_plot_df = data.frame(colSums(TP53_df[c("TP53_damaging_A", "TP53_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(TP53_df["TP53_damaging_N",c("matched_samples", "total_samples")]))
-colnames(Fig3D_plot_df) = c("A&trans", "N")
+colnames(Fig3D_plot_df) = c("A&AN", "N")
 fisher.test(Fig3D_plot_df)
 
 p = ggplot(TP53_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
@@ -446,9 +446,9 @@ p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727"))
 ggsave(paste0(plot_dir, "Fig3D_TP53_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
-Fig3D_plot_df = data.frame(colSums(CellCycle_df[c("Cell_Cycle_damaging_A", "Cell_Cycle_damaging_trans"),c("matched_samples", "total_samples")]),
+Fig3D_plot_df = data.frame(colSums(CellCycle_df[c("Cell_Cycle_damaging_A", "Cell_Cycle_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(CellCycle_df["Cell_Cycle_damaging_N",c("matched_samples", "total_samples")]))
-colnames(Fig3D_plot_df) = c("A&trans", "N")
+colnames(Fig3D_plot_df) = c("A&AN", "N")
 fisher.test(Fig3D_plot_df)
 
 p = ggplot(CellCycle_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
@@ -464,8 +464,8 @@ cnv_alteration_by_gene = data.frame(t(data.frame(lapply(c("RICTOR", "SKP2","IL7R
                return(c(tmp/length(unique(CNV_A_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(CNV_A_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
         }))),
 t(data.frame(lapply(c("RICTOR", "SKP2","IL7R", "MYC", "MYCN", "MYCL", "SMAD2", "SMAD4"), function(x) {
-               tmp = CNV_trans_type_maf_subset@data$Tumor_Sample_Barcode[CNV_trans_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
-               return(c(tmp/length(unique(CNV_trans_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(CNV_trans_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
+               tmp = CNV_AN_type_maf_subset@data$Tumor_Sample_Barcode[CNV_AN_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
+               return(c(tmp/length(unique(CNV_AN_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(CNV_AN_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
         }))),
 t(data.frame(lapply(c("RICTOR", "SKP2","IL7R", "MYC", "MYCN", "MYCL", "SMAD2", "SMAD4"), function(x) {
                tmp = CNV_N_type_maf_subset@data$Tumor_Sample_Barcode[CNV_N_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
@@ -477,7 +477,7 @@ t(data.frame(lapply(c("RICTOR", "SKP2","IL7R", "MYC", "MYCN", "MYCL", "SMAD2", "
         }))))
 
 rownames(cnv_alteration_by_gene) = c("RICTOR", "SKP2","IL7R", "MYC", "MYCN", "MYCL", "SMAD2", "SMAD4")
-colnames(cnv_alteration_by_gene) = lapply(c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P"), function(x) {paste0(x,"_",c("Percentage", "match", "samples"))}) %>% unlist() %>% as.character()
+colnames(cnv_alteration_by_gene) = lapply(c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P"), function(x) {paste0(x,"_",c("Percentage", "match", "samples"))}) %>% unlist() %>% as.character()
 
 cnv_alteration_by_gene$gene_name = rownames(cnv_alteration_by_gene)
 
@@ -487,13 +487,13 @@ cnv_alteration_by_gene$gene_name = rownames(cnv_alteration_by_gene)
 for(i_gene in c("RICTOR", "SKP2","IL7R")){
         plot_df = cnv_alteration_by_gene[i_gene,grepl("Percentage", colnames(cnv_alteration_by_gene))]# & colnames(cnv_alteration_by_gene)!= "SCLC-P_Percentage"]
         plot_df = reshape::melt(plot_df)
-        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P"))
+        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P"))
 
-        Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-tr_match", "SCLC-N_match")]),
-                                 as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-tr_samples", "SCLC-N_samples")]))
+        Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match")]),
+                                 as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples")]))
         Fisher_test = rbind(colSums(Fisher_test[c(1,2),]), Fisher_test[3,])
         colnames(Fisher_test) = c("match", "notMatch")
-        rownames(Fisher_test) = c("A&trans", "N")
+        rownames(Fisher_test) = c("A&AN", "N")
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% CNV alterations") +
                 xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
@@ -504,10 +504,10 @@ for(i_gene in c("RICTOR", "SKP2","IL7R")){
 for(i_gene in c("MYC", "MYCL")){
         plot_df = cnv_alteration_by_gene[i_gene,grepl("Percentage", colnames(cnv_alteration_by_gene))]
         plot_df = reshape::melt(plot_df)
-        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P"))
+        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P"))
 
-        Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-tr_match", "SCLC-N_match", "SCLC-P_match")]),
-                                 as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-tr_samples", "SCLC-N_samples", "SCLC-P_samples")]))
+        Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match", "SCLC-P_match")]),
+                                 as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples", "SCLC-P_samples")]))
         Fisher_test = rbind(colSums(Fisher_test[c(1,2, 3),]), Fisher_test[4,])
         colnames(Fisher_test) = c("match", "notMatch")
         rownames(Fisher_test) = c("NE", "P")
@@ -529,7 +529,7 @@ TMB_df = data.frame("SCLC_subtype"=laml@clinical.data$SCLC_subtype, "TMB"=laml@c
 TMB_df$TMB = as.numeric(TMB_df$TMB)
 plot_df = data.frame(as.character(unique(TMB_df$SCLC_subtype)))
 colnames(plot_df) = c("SCLC_subtype")
-plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "trans", "N", "P", "TN"))
+plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "AN", "N", "P", "TN"))
 plot_df$median = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
                  function(x) {median(TMB_df[TMB_df$SCLC_subtype==x,2])}))
 plot_df$Q3 = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
@@ -553,7 +553,7 @@ purity_df$Purity = as.numeric(purity_df$Purity)
 
 plot_df = data.frame(as.character(unique(matched_meta_info$SCLC_subtype)))
 colnames(plot_df) = c("SCLC_subtype")
-plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "trans", "N", "P", "TN"))
+plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "AN", "N", "P", "TN"))
 plot_df$mean = as.numeric(lapply(as.character(unique(purity_df$SCLC_subtype)),
                  function(x) {mean(purity_df[purity_df$SCLC_subtype==x,2])}))
 
@@ -596,7 +596,7 @@ damaging_laml = CustomsubsetMaf(laml, query = '(Hugo_Symbol %in% c("TP53", "RB1"
 
 damaging_N_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "N"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
 damaging_A_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "A"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
-damaging_trans_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "trans"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
+damaging_AN_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "AN"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
 damaging_P_type_maf_subset = CustomsubsetMaf(maf = damaging_laml, clinQuery = 'SCLC_subtype == "P"', mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)])
 
 
@@ -605,8 +605,8 @@ damaging_alteration_by_gene = data.frame(t(data.frame(lapply(c("MYC", "PTEN", "C
                return(c(tmp/length(unique(damaging_A_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(damaging_A_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
         }))),
                                     t(data.frame(lapply(c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1"), function(x) {
-               tmp = damaging_trans_type_maf_subset@data$Tumor_Sample_Barcode[damaging_trans_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
-               return(c(tmp/length(unique(damaging_trans_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(damaging_trans_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
+               tmp = damaging_AN_type_maf_subset@data$Tumor_Sample_Barcode[damaging_AN_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
+               return(c(tmp/length(unique(damaging_AN_type_maf_subset@clinical.data$Tumor_Sample_Barcode)), tmp, length(unique(damaging_AN_type_maf_subset@clinical.data$Tumor_Sample_Barcode))))
         }))),
                                     t(data.frame(lapply(c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1"), function(x) {
                tmp = damaging_N_type_maf_subset@data$Tumor_Sample_Barcode[damaging_N_type_maf_subset@data$Hugo_Symbol==x] %>% unique() %>% length()
@@ -618,7 +618,7 @@ t(data.frame(lapply(c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1"), funct
         }))))
 
 rownames(damaging_alteration_by_gene) = c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1")
-colnames(damaging_alteration_by_gene) = lapply(c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P"), function(x) {paste0(x,"_",c("Percentage", "match", "samples"))}) %>% unlist() %>% as.character()
+colnames(damaging_alteration_by_gene) = lapply(c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P"), function(x) {paste0(x,"_",c("Percentage", "match", "samples"))}) %>% unlist() %>% as.character()
 
 damaging_alteration_by_gene$gene_name = rownames(damaging_alteration_by_gene)
 
@@ -628,24 +628,24 @@ damaging_alteration_by_gene$gene_name = rownames(damaging_alteration_by_gene)
 for(i_gene in c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1")){
         plot_df = damaging_alteration_by_gene[i_gene,grepl("Percentage", colnames(damaging_alteration_by_gene))]
         plot_df = reshape::melt(plot_df)
-        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-tr", "SCLC-N", "SCLC-P"))
+        plot_df$variable = factor(gsub("_Percentage", "", plot_df$variable), levels = c("SCLC-A", "SCLC-AN", "SCLC-N", "SCLC-P"))
 
-        Fisher_test1 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-tr_match")]),
-                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-tr_samples")]))
+        Fisher_test1 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match")]),
+                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples")]))
         colnames(Fisher_test1) = c("match", "notMatch")
-        rownames(Fisher_test1) = c("A", "tran")
+        rownames(Fisher_test1) = c("A", "AN")
 
-        Fisher_test2 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-tr_match", "SCLC-N_match")]),
-                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-tr_samples", "SCLC-N_samples")]))
+        Fisher_test2 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match")]),
+                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples")]))
         Fisher_test2 = rbind(colSums(Fisher_test2[c(1,2),]), Fisher_test2[3,])
         colnames(Fisher_test2) = c("match", "notMatch")
-        rownames(Fisher_test2) = c("A&trans", "N")
+        rownames(Fisher_test2) = c("A&AN", "N")
 
-        Fisher_test3 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-tr_match", "SCLC-P_match")]),
-                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-tr_samples", "SCLC-P_samples")]))
+        Fisher_test3 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-P_match")]),
+                                 as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-P_samples")]))
         Fisher_test3 = rbind(colSums(Fisher_test3[c(1,2),]), Fisher_test3[3,])
         colnames(Fisher_test3) = c("match", "notMatch")
-        rownames(Fisher_test3) = c("A&trans", "p")
+        rownames(Fisher_test3) = c("A&AN", "p")
 
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% Damaging & CNV alteration") +
                 xlab("") + ggtitle(paste0(i_gene, ":",
