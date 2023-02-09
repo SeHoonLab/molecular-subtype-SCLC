@@ -60,8 +60,7 @@ Exp.count.melt <-reshape2::melt(Exp.count)
 library(ggplot2)
 library(edgeR)
 library(EnhancedVolcano)
-work_dir = "../Figures/step1/"
-system(paste0("mkdir ", work_dir))
+work_dir = "../Figures/"
 SCLC_meta = read.xlsx("../resource/Essential_check_Edited.xlsx", header = TRUE, sheetName = "Sheet1")
 
 SCLC_meta$SGI_ID = lapply(SCLC_meta$SGI_ID, function(x) {strsplit(gsub("^ ", "", x), " ")[[1]][1]}) %>% unlist() %>% as.character()
@@ -144,8 +143,8 @@ plot_N_versus_A = EnhancedVolcano(N_versus_A$table,
                  pCutoff = 0.05,
                  pointSize = 1.5,
                  labSize = 5.0)
-write.table(N_versus_A$table, paste0(work_dir, "plot_N_versus_A_DEG.txt"), col.names = TRUE, row.names = TRUE, sep = '\t', quote = FALSE)
-saveRDS(N_versus_A, paste0(work_dir, "plot_N_versus_A_DEG.Rds"))
+write.table(N_versus_A$table, paste0(work_dir, "etc/plot_N_versus_A_DEG.txt"), col.names = TRUE, row.names = TRUE, sep = '\t', quote = FALSE)
+saveRDS(N_versus_A, paste0(work_dir, "etc/plot_N_versus_A_DEG.Rds"))
 
 
 N_versus_A = N_versus_A$table
@@ -185,7 +184,7 @@ colnames(Fig1D_PCA_df) = c("PC1", "PC2", "PC3", "SCLC_subtype")
 
 p = ggscatter(Fig1D_PCA_df[Fig1D_PCA_df$PC1<40,], x="PC1", y = "PC2", shape = "SCLC_subtype", color = "SCLC_subtype", palette = c("#BC3C29", "#0072B5", "#E18727"), ellipse=TRUE,
          conf.int = FALSE, cor.coef = FALSE, ellipse.type = "convex")
-ggsave(paste0(work_dir, "Fig1D_PCA_plot.pdf"), plot = p, width = 5, height = 5)
+ggsave(paste0(work_dir, "Fig1/Fig1E_PCA_plot.pdf"), plot = p, width = 5, height = 5)
 
 calculate_group_centroid(Fig1D_PCA_df[, "PC1"], Fig1D_PCA_df[,"PC2"], SCLC_subtype_WTS_meta_NE$SCLC_subtype)
 
@@ -260,7 +259,7 @@ dd.reorder <- reorder(dend, c(3,1,2))
 
 col_fun = colorRamp2(c(0.8, 0.9,1), c("#3a1b59", "#2E4A89", "#FEFA2B"))
 print(cor(AverageExpr_DEG))
-pdf(paste0(work_dir, "Fig1D_right_NeuroEndocrine_AverageExpr_DEG_correlation_heatmap.pdf"), width = 8, height = 7)
+pdf(paste0(work_dir, "Fig1/Fig1D_right.pdf"), width = 8, height = 7)
 Heatmap(cor(AverageExpr_DEG), cluster_columns=rev(dd.reorder), cluster_rows=rev(dd.reorder), col = col_fun, name = "FC>1.5 & P value top50")
 dev.off()
 
@@ -335,7 +334,7 @@ dend = as.dendrogram(hclust(dist(cor(AverageExpr_DEG))))
 dd.reorder <- reorder(dend, c(2, 1 , 3, 4))
 
 col_fun = colorRamp2(c(0.6, 0.8,1), c("#3a1b59", "#2E4A89", "#FEFA2B"))
-pdf(paste0(work_dir, "Fig1D_left_NeuroEndo_and_P_AverageExpr_DEG_correlation_heatmap.pdf"), width = 8, height = 8)
+pdf(paste0(work_dir, "Fig1/Fig1D_left.pdf"), width = 8, height = 8)
 set.seed(0)
 Heatmap(cor(AverageExpr_DEG), cluster_columns=TRUE, cluster_rows=TRUE, col = col_fun, name = "FC>1.25 & P value top50")
 dev.off()
@@ -387,9 +386,7 @@ keyvals = apply(N_AAN_DEG, 1, function(x) {
                                               }) %>% unlist() %>% as.character()
 
 names(keyvals)[keyvals == '#800000'] <- 'A&AN Immune'
-#names(keyvals)[keyvals == '#c38e63'] <- 'nonhigh'# "#f6bdc0"
 names(keyvals)[keyvals == "#1e2f97"] <- 'N Notch'
-#names(keyvals)[keyvals == '#59788e'] <- 'nonlow' #"#b0dbf1"
 names(keyvals)[keyvals == '#949494'] <- 'non-sig'
 N_AAN_DEG$log2FC = log2(exp(N_AAN_DEG$logFC))
 
@@ -400,7 +397,7 @@ plot_N_AAN_DEG = EnhancedVolcano(N_AAN_DEG,
                  pCutoff = 0.05, colCustom=keyvals,
                  pointSize = 1, selectLab=target_gene_of_N_vs_AAN,
                  drawConnectors = TRUE, directionConnectors = "both",  max.overlaps=Inf, colAlpha = 0.9)
-ggsave(paste0(work_dir, "Fig_S5B_edgeR_N_AAN_DEG.png"), plot = plot_N_AAN_DEG, width = 5, height = 6)
+ggsave(paste0(work_dir, "FigS6/FigS6B_edgeR_N_AAN_DEG.png"), plot = plot_N_AAN_DEG, width = 5, height = 6)
 
 plot_N_AAN_DEG = EnhancedVolcano(N_AAN_DEG,
                 lab = rownames(N_AAN_DEG),
@@ -409,13 +406,12 @@ plot_N_AAN_DEG = EnhancedVolcano(N_AAN_DEG,
                  pCutoff = 0.05, colCustom=keyvals,
                  pointSize = 1, selectLab=target_gene_of_N_vs_AAN,
                  drawConnectors = FALSE, directionConnectors = "both",  max.overlaps=Inf, colAlpha = 0.9)
-ggsave(paste0(work_dir, "Fig_S5B_edgeR_N_AAN_DEG_nodir.png"), plot = plot_N_AAN_DEG, width = 5, height = 6)
+ggsave(paste0(work_dir, "FigS6/FigS6B_edgeR_N_AAN_DEG_nodir.png"), plot = plot_N_AAN_DEG, width = 5, height = 6)
 
 
-saveRDS(N_versus_AandAN, paste0(work_dir, "Fig_S5B_edgeR_N_AAN_DEG.Rds"))
+saveRDS(N_versus_AandAN, paste0(work_dir, "etc/FigS6B_edgeR_N_AAN_DEG.Rds"))
 ########################################
 pathways.hallmark <- gmtPathways("../resource/h.all.v7.4.symbols.gmt")
-#system("wget https://data.broadinstitute.org/gsea-msigdb/msigdb/release/7.4/c2.cp.kegg.v7.4.symbols.gmt -P ../resource/")
 pathway.kegg = gmtPathways("../resource/c2.cp.kegg.v7.4.symbols.gmt")
 
 Hallmark_immune = pathways.hallmark[grepl("HALLMARK_I", names(pathways.hallmark))] %>% unlist() %>% as.character()
@@ -486,8 +482,8 @@ plot_P_AAN_DEG = EnhancedVolcano(P_AAN_DEG,
                  pCutoff = 0.05,
                  pointSize = 1, selectLab=VolcanoPlot_genelist, colCustom=keyvals,
                  drawConnectors = TRUE,directionConnectors = "both",  max.overlaps=Inf, colAlpha = 0.9)
-ggsave(paste0(work_dir, "Fig_S5A_edgeR_P_AAN_DEG.png"), plot = plot_P_AAN_DEG, width = 5, height = 6)
-saveRDS(P_versus_AandAN, paste0(work_dir, "Fig_S5A_edgeR_P_AAN_DEG.Rds"))
+ggsave(paste0(work_dir, "FigS6/FigS6A_edgeR_P_AAN_DEG.png"), plot = plot_P_AAN_DEG, width = 5, height = 6)
+saveRDS(P_versus_AandAN, paste0(work_dir, "etc/FigS6A_edgeR_P_AAN_DEG.Rds"))
 
 ###############################
 
@@ -498,7 +494,7 @@ plot_P_AAN_DEG = EnhancedVolcano(P_AAN_DEG,
                  pCutoff = 0.05,
                  pointSize = 1, selectLab=VolcanoPlot_genelist, colCustom=keyvals,
                  drawConnectors = FALSE,directionConnectors = "both",  max.overlaps=Inf, colAlpha = 0.9)
-ggsave(paste0(work_dir, "Fig_S5A_edgeR_P_AAN_DEG_nodir.png"), plot = plot_P_AAN_DEG, width = 5, height = 6)
+ggsave(paste0(work_dir, "FigS6/FigS6A_edgeR_P_AAN_DEG_nodir.png"), plot = plot_P_AAN_DEG, width = 5, height = 6)
 
 
 ############################### WTS subype
@@ -618,7 +614,7 @@ p = ggplot(ggdat, aes(x = "", y = prop, fill = WTS_subtype)) +
   scale_fill_manual(values = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1")) +
   theme_void()
 
-ggsave(paste0(work_dir,"Fig1C_right.WTS_subtype.png"), plot = p, width = 5, height = 5)
+ggsave(paste0(work_dir,"Fig1/Fig1C_WTS_subtype.png"), plot = p, width = 5, height = 5)
 
 
 
@@ -654,7 +650,7 @@ kappa_df$SCLC_subtype = as.character(kappa_df$SCLC_subtype)
 kappa_df$SCLC_subtype[kappa_df$SCLC_subtype!="P"] = "non-P"
 cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("P", "non-P")),
 			factor(kappa_df$WTS_subtype, levels = c("P", "non-P")))
-print("Fig S1F P and nonP subtype confusion matrix\n")
+print("FigS2B: P and nonP subtype confusion matrix\n")
 print(cfm3)
 
 
@@ -664,7 +660,7 @@ ggconfusion_P = ggconfusion_P[!ggconfusion_P$WTS_subtype %in% c("TN", "P") & !gg
 kappa_df = ggconfusion_P
 cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("A", "AN", "N")),
                         factor(kappa_df$WTS_subtype, levels = c("A", "AN", "N")))
-print("Fig S1F A, AN, and N subtype confusion matrix\n")
+print("FigS2C: A, AN, and N subtype confusion matrix\n")
 print(cfm3)
 
 
@@ -676,7 +672,7 @@ kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("A", "AN")] = "A&AN"
 cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("N", "A&AN")),
                         factor(kappa_df$WTS_subtype, levels = c("N", "A&AN")))
 
-print("Fig S1F, N and A&AN subtype confusion matrix")
+print("FigS2C: N and A&AN subtype confusion matrix")
 print(cfm3)
 
 kappa_df = ggconfusion_P
@@ -687,7 +683,7 @@ kappa_df$SCLC_subtype[kappa_df$SCLC_subtype %in% c("N", "AN")] = "N&AN"
 cfm3 <- confusionMatrix(factor(kappa_df$SCLC_subtype, levels = c("N&AN", "A")),
                         factor(kappa_df$WTS_subtype, levels = c("N&AN", "A")))
 
-print("Fig S1F, N&AN and A subtype confusion matrix")
+print("FigS2C: N&AN and A subtype confusion matrix")
 print(cfm3)
 
 
@@ -700,7 +696,7 @@ print(cfm3)
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~WTS_subtype, data = SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$ini_stage=="ED",])
 cox_fit = coxph(Surv(OS_time, OS_event==1)~WTS_subtype, data = SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$ini_stage=="ED",])
 
-pdf(paste0(work_dir, "Fig_S3D_OS_Analysis_WTS_subtype_ED.pdf"), width = 8, height = 6.2)
+pdf(paste0(work_dir, "FigS4/FigS4D_OS_Analysis_WTS_subtype_ED.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = OS_fit,
   size = 1.5,
@@ -760,7 +756,7 @@ set.seed(100)
 k_cluster = 2
 cluster_heatmap = Heatmap(pt.matrix, column_split = k_cluster, clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"), cluster_rows=FALSE)
 cluster_heatmap_ht = draw(cluster_heatmap); cluster_heatmap_tr_order = column_order(cluster_heatmap_ht)
-pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
+pdf(paste0(work_dir, "FigS1/FigS1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
 print(cluster_heatmap_ht)
 dev.off()
 
@@ -772,7 +768,7 @@ print(table(tmp))
 column_split = tmp
 
 rownames(pt.matrix) = c(1,2,3)
-pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
+pdf(paste0(work_dir, "FigS1/FigS1D_WTS_clustering_P_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 2)
 Heatmap(pt.matrix, column_split = factor(column_split, levels = c("nonP", "P")), clustering_distance_columns = i_distance_method, show_column_names = FALSE, clustering_method_columns = i_cluster_medhod, column_gap = unit(5, "mm"), cluster_rows=FALSE)
 dev.off()
 
@@ -793,7 +789,7 @@ cluster_heatmap = Heatmap(pt.matrix, column_split = 3, clustering_distance_colum
 cluster_heatmap_ht = draw(cluster_heatmap); cluster_heatmap_tr_order = column_order(cluster_heatmap_ht)
 
 dev.off()
-pdf(paste0(work_dir, "Fig_S1D_WTS_clustering_NE_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 3)
+pdf(paste0(work_dir, "FigS1/FigS1D_WTS_clustering_NE_classification_",k_cluster,"_",i_cluster_medhod,"_",i_distance_method,".pdf"), width = 6, height = 3)
 print(cluster_heatmap_ht)
 dev.off()
 tmp = rep("cluster", ncol(pt.matrix))
@@ -821,7 +817,7 @@ surv_df_SCLC_subtype_WTS_meta$Heatmap_cluster = factor(surv_df_SCLC_subtype_WTS_
 
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~Heatmap_cluster, data = surv_df_SCLC_subtype_WTS_meta[surv_df_SCLC_subtype_WTS_meta$ini_stage=="ED",])
 cox_fit = coxph(Surv(OS_time, OS_event==1)~Heatmap_cluster, data = surv_df_SCLC_subtype_WTS_meta[surv_df_SCLC_subtype_WTS_meta$ini_stage=="ED",])
-pdf(paste0(work_dir, "Fig_S3E_WTS_clustering_classification_survplot.pdf"), width = 7, height = 5.5)
+pdf(paste0(work_dir, "FigS4/FigS4E_WTS_clustering_classification_survplot.pdf"), width = 7, height = 5.5)
 p = ggsurvplot(
 	fit = OS_fit,
 	size = 1.5,

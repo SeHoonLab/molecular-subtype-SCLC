@@ -23,8 +23,7 @@ axis_theme = theme(axis.text.x = element_text(size=10, face="bold", color = "bla
         axis.text.y = element_text(size=10, face="bold", color = "black"),
         axis.title.y = element_text(size=10, face="bold", color = "black"), panel.border = element_rect(size = 1))
 
-work_dir = "../Figures/step4/"
-system(paste0("mkdir ", work_dir))
+work_dir = "../Figures/"
 
 SCLC_meta = read.xlsx("../resource/Essential_check_Edited.xlsx", header = TRUE, sheetName = "Sheet1")
 Signature_df = read.xlsx("../ref_signature/Signature gene list.xlsx", header = TRUE, sheetName="Sheet1")
@@ -59,7 +58,7 @@ Exp.count = read.table("../resource/Exp.count.txt", header = TRUE, sep = '\t')
 ######################################################
 
 set.seed(100)
-N_AAN_DEG = readRDS("../Figures/step1/Fig_S5B_edgeR_N_AAN_DEG.Rds")
+N_AAN_DEG = readRDS("../Figures/etc/FigS6B_edgeR_N_AAN_DEG.Rds")
 N_AAN_DEG = N_AAN_DEG$table
 
 Filt_DEG = N_AAN_DEG[N_AAN_DEG$PValue<=1,]
@@ -97,7 +96,7 @@ p = ggplot(fgseaRes[grepl("NOTCH", fgseaRes$pathway) | (!is.na(fgseaRes$pval) & 
   theme_bw() + scale_fill_gradient(low = "#ff0000", high = "#0000FF") + axis_theme +  scale_fill_gradientn(limits = c(0,3), colours=c("blue", "red"))
 
 #ggsave(paste0(work_dir, "Fig4B_N_AAN_DEG_pvalue_fgsea.png"), plot = p, width = 9, height=5)
-pdf(paste0(work_dir, "Fig4B_N_AAN_DEG_pvalue_fgsea.pdf"),  width = 9, height=5)
+pdf(paste0(work_dir, "Fig4/Fig4B_N_AAN_DEG_pvalue_fgsea.pdf"),  width = 9, height=5)
 print(p)
 dev.off()
 
@@ -105,7 +104,7 @@ dev.off()
 #P_vs A&AN
 
 set.seed(100)
-P_AAN_DEG = readRDS("../Figures/step1/Fig_S5A_edgeR_P_AAN_DEG.Rds")
+P_AAN_DEG = readRDS("../Figures/etc/FigS6A_edgeR_P_AAN_DEG.Rds")
 P_AAN_DEG = P_AAN_DEG$table
 
 Filt_DEG = P_AAN_DEG[P_AAN_DEG$PValue<=1,]
@@ -143,7 +142,7 @@ p = ggplot(fgseaRes[grepl("NOTCH", fgseaRes$pathway) | c(!is.na(fgseaRes$pval) &
 
 #ggsave(paste0(work_dir, "Fig4A_P_A&AN_DEG_pvalue_fgsea.png"), plot = p, widt=8.4, height=5)
 
-pdf(paste0(work_dir, "Fig4A_P_A&AN_DEG_pvalue_fgsea.pdf"), widt=8.4, height=5)
+pdf(paste0(work_dir, "Fig4/Fig4A_P_A&AN_DEG_pvalue_fgsea.pdf"), widt=8.4, height=5)
 print(p)
 dev.off()
 
@@ -257,7 +256,7 @@ pt.matrix2 = data.frame(pt.matrix[,annotation$SCLC_subtype=="A"], pt.matrix[,ann
 set.seed(100)
 plot_heatmap = Heatmap(pt.matrix2[rownames(gene_annotation),], name = paste0("Z-scale"), top_annotation = colAnn, cluster_columns = FALSE, right_annotation = rowAnn, cluster_rows = FALSE, show_column_names = FALSE, row_order = rownames(gene_annotation), row_split = high_low, column_split = columne_split_NE, row_gap = unit(5, "mm"), column_gap = unit(5, "mm"))
 
-pdf(paste0(work_dir, "Fig4C_left_Heatmap_and_annotation_NE_and_P_subtype.pdf"), width = 10, height = 8)
+pdf(paste0(work_dir, "Fig4/Fig4C_left_Heatmap_and_annotation_NE_and_P_subtype.pdf"), width = 10, height = 8)
 print(plot_heatmap)
 dev.off()
 
@@ -297,7 +296,7 @@ wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "
 wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Net_notch_score"],
                      SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("P"),"Net_notch_score"])$p.value
 
-pdf(paste0(work_dir, "Fig4C_right_Heatmap_Results_upSet_MYC_induced_downSet_MYC_repressed_singscore.pdf"), width = 4, height = 4)
+pdf(paste0(work_dir, "Fig4/Fig4C_right_Heatmap_Results_upSet_MYC_induced_downSet_MYC_repressed_singscore.pdf"), width = 4, height = 4)
 print(p)# + ggtitle(paste0("A&AN vs N : ", wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Net_notch_score"],
 #                     SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("N"),"Net_notch_score"])$p.value,"\n",
 #			 "A&AN vs P : ", wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Net_notch_score"],
@@ -390,7 +389,7 @@ rowAnn = rowAnnotation(df=gene_annotation,
   col=list(Gene_classification=c("INTERFERON_ALPHA" = "#812417", "INTERFERON_GAMMA" = "#C8D0C5", "ALLOGRAFT_REJECTION" = "#00008b")))
 
 
-pdf(paste0(work_dir, "Fig4D_left_Immune_related_heatmap_NE_and_P.pdf"), width = 11, height = 7.5)
+pdf(paste0(work_dir, "Fig4/Fig4D_left_Immune_related_heatmap_NE_and_P.pdf"), width = 11, height = 7.5)
 Heatmap(pt.matrix2[rownames(gene_annotation),], name = paste0("Z-scale"), top_annotation = colAnn, cluster_columns = FALSE,  cluster_rows = FALSE, show_column_names = FALSE, column_split = columne_split_NE, row_gap = unit(5, "mm"), column_gap = unit(5, "mm"), row_order = rownames(gene_annotation), left_annotation = rowAnn)
 dev.off()
 
@@ -422,7 +421,7 @@ wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "
 wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Hallmark_immune"],
                      SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("P"),"Hallmark_immune"])$p.value
 
-pdf(paste0(work_dir, "Fig4D_right_heatmap_Immune_related_signature_singscore.pdf"), width = 4, height = 4)
+pdf(paste0(work_dir, "Fig4/Fig4D_right_heatmap_Immune_related_signature_singscore.pdf"), width = 4, height = 4)
 print(p)# + ggtitle(paste0("A&AN vs N : ", wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Hallmark_immune"],
 #                     SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("N"),"Hallmark_immune"])$p.value,"\n",
 #			 "A&AN vs P : ", wilcox.test(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype%in%c("A", "AN"),"Hallmark_immune"],
@@ -560,7 +559,7 @@ sample_scale_heatmap_ht = draw(sample_scale_heatmap); sample_scale_heatmap_tr_or
 #ggsave(paste0(work_dir, "sample_scale_", k_cluster, "_complexheatmap_", "pearson.png"), plot = sample_scale_heatmap_ht, width = 7, height = 7)
 sample_scale_heatmap_ht = draw(sample_scale_heatmap); sample_scale_heatmap_tr_order = column_order(sample_scale_heatmap_ht)
 
-pdf(paste0(work_dir,"TME_annotated_inflamed_clustering_complexheatmap1.pdf"), width = 14, height = 10)
+pdf(paste0(work_dir,"Fig5/Fig5A_TME_annotated_inflamed_clustering_complexheatmap1.pdf"), width = 14, height = 10)
 print(sample_scale_heatmap_ht)
 dev.off()
 
@@ -606,9 +605,7 @@ if(N_count>=5){next}
 P_count = table(SCLC_subtype_WTS_meta$Immune_cluster, SCLC_subtype_WTS_meta$SCLC_subtype)
 P_count = P_count["high_cluster", "P"]
 
-pdf(paste0(work_dir, pvalue,"_", N_count,"_", round(N_count/19,2),"_", round(P_count/15, 2), "_", i_distance_method,"_", i_cluster_medhod, "_",
-	  round(table(SCLC_subtype_WTS_meta$Immune_cluster)["high_cluster"]/nrow(SCLC_subtype_WTS_meta), 2),
-	  "_TME_annotated_inflamed_clustering_complexheatmap.pdf"), width = 14, height = 10)
+pdf(paste0(work_dir, "Fig5/Fig5A_TME_annotated_inflamed_clustering_complexheatmap.pdf"), width = 14, height = 10)
 print(sample_scale_heatmap)
 dev.off()
 
@@ -640,7 +637,7 @@ thickness = theme(legend.title = element_text(size = 13, color = "black", face =
 ##################################
 
 
-pdf(paste0(work_dir, "Fig5C_", pvalue,"_", N_count, "_", i_distance_method,"_", i_cluster_medhod,"_first_line_IO_sample_Survplot_by_inflamed.pdf"), width = 8, height = 6)
+pdf(paste0(work_dir, "Fig5/Fig5C_first_line_IO_sample_Survplot_by_inflamed.pdf"), width = 8, height = 6)
         p = ggsurvplot(
                 fit = pfs_fit,
                 size = 1.5,
@@ -686,7 +683,7 @@ data$Inflamed = factor(data$Inflamed, levels = c("Inflamed", "Non-Inflamed"))
 p=ggplot(data, aes(fill=Inflamed, y=value, x=variable)) +
     geom_bar(position="fill", stat="identity") + theme_bw() + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5")) + scale_y_continuous(labels = function(x) paste0(x*100, "%"))
 p = p + theme(axis.text.x = element_text(angle = 20, vjust = 0.5)) + xlab("") + ylab("") + ggtitle(paste0("Fisher p.value: ",round(fisher_pvalue$p.value, 3)))
-pdf(paste0(work_dir, "Fig5D_", pvalue,"_", N_count, "_", i_distance_method,"_", i_cluster_medhod,"_InflamedInfo_proportion_by_responder.pdf"), width = 4, height = 4)
+pdf(paste0(work_dir, "Fig5/Fig5D_InflamedInfo_proportion_by_responder.pdf"), width = 4, height = 4)
 print(p)
 dev.off()
 
@@ -716,7 +713,7 @@ data$SCLC_subtype = factor(data$SCLC_subtype, levels = c("A", "AN", "N"))
 p=ggplot(data, aes(fill=SCLC_subtype, y=value, x=variable)) +
     geom_bar(position="fill", stat="identity") + theme_bw() + axis_theme + scale_fill_nejm() + scale_y_continuous(labels = function(x) paste0(x*100, "%"))
 p = p + theme(axis.text.x = element_text(angle = 20, vjust = 0.5)) + xlab("") + ylab("") + ggtitle(paste0("Fisher p.value: ",round(fisher_pvalue$p.value, 3)))
-ggsave(paste0(work_dir, "Fig5D_SCLC_subtype_proportion_by_responder.png"), plot=p, width = 4, height=4)
+ggsave(paste0(work_dir, "Fig5/Fig5D_IHC_subtype_proportion_by_responder.png"), plot=p, width = 4, height=4)
 
 
 ###################
@@ -743,7 +740,7 @@ data$TME = factor(data$TME, levels = c("IE", "IE/F", "F", "D"))
 p=ggplot(data, aes(fill=TME, y=value, x=variable)) +
     geom_bar(position="fill", stat="identity") + theme_bw() + axis_theme + scale_fill_manual(values=c("#c24857", "#cb7131", "#5cad68", "#204637")) + scale_y_continuous(labels = function(x) paste0(x*100, "%"))
 p = p + theme(axis.text.x = element_text(angle = 20, vjust = 0.5)) + xlab("") + ylab("") + ggtitle(paste0("Fisher p.value: ",round(fisher_pvalue$p.value, 3)))
-ggsave(paste0(work_dir, "Fig_S6D_TME_subtype_proportion_by_responder.png"), plot=p, width = 3.5, height=4)
+ggsave(paste0(work_dir, "FigS7/FigS7D_TME_subtype_proportion_by_responder.png"), plot=p, width = 3.5, height=4)
 
 
 
@@ -766,7 +763,7 @@ pvalue = surv_pvalue(pfs_fit)$pval %>% round(., 5)
 
 
 
-pdf(paste0(work_dir, "Fig_S6E_pfs_by_A&AN_versus_N_Survplot_in_IO.pdf"), width = 8, height = 6)
+pdf(paste0(work_dir, "FigS7/FigS7E_pfs_by_A&AN_versus_N_Survplot_in_IO.pdf"), width = 8, height = 6)
         p = ggsurvplot(
                 fit = pfs_fit,
                 size = 1.5,
@@ -808,7 +805,7 @@ for(i_sig in c("CAF", "Matrix", "EMT_signature")){
         colnames(tmp_MFP) = c("score", "SCLC_subtype")
         p = ggplot(tmp_MFP, aes(x=SCLC_subtype, y = score, fill = SCLC_subtype)) + geom_boxplot() + theme_bw()+ scale_fill_nejm() + xlab("SCLC subtype") +
                 ylab(paste0(gsub("_signature", "", i_sig), " signature score")) + axis_theme + ylim(-2, 3) + theme(legend.position="none") + xlab("")
-        ggsave(paste0(work_dir, "Fig_S6B_", i_sig,".png"), plot =p, width = 3.2, height = 3.8)
+        ggsave(paste0(work_dir, "FigS7/FigS7B_", i_sig,".png"), plot =p, width = 3.2, height = 3.8)
         print(wilcox.test(tmp_MFP$score[tmp_MFP$SCLC_subtype %in% c("A", "AN")], tmp_MFP$score[tmp_MFP$SCLC_subtype %in% c("N")])$p.value)
 }
 
@@ -850,7 +847,7 @@ p = ggscatter(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype %in% c("A
    cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
    cor.coeff.args = list(method = "pearson", label.x = 0.2, label.y=0.1, label.sep = "\n"), palette = c("#E72644", "#86CFEC"),
    xlim = c(-0.3, 0.3), ylim = c(-0.4, 0.1))
-ggsave(paste0(work_dir, "Fig_S6C_edit_ASCL1_AN_subtype_x_Net_NOTCH_y_InflamedScore_sig.png"), plot = p, width = 7, height = 7)
+ggsave(paste0(work_dir, "FigS7/FigS7C_ASCL1_AN_subtype_x_Net_NOTCH_y_InflamedScore_sig.png"), plot = p, width = 7, height = 7)
 
 
 
@@ -862,7 +859,7 @@ p = ggscatter(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype %in% c("A
    cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
    cor.coeff.args = list(method = "pearson", label.x = 0.25, label.y=0.08, label.sep = "\n"), palette = c("#E72644", "#86CFEC"),
    xlim = c(0.0, 0.3), ylim = c(-0.4, 0.1))
-ggsave(paste0(work_dir, "Fig_S6C_edit_ASCL1_AN_subtype_x_NE_y_InflamedScore.png"), plot = p, width = 7, height = 7)
+ggsave(paste0(work_dir, "FigS7/FigS7C_ASCL1_AN_subtype_x_NE_y_InflamedScore.png"), plot = p, width = 7, height = 7)
 
 
 
@@ -875,7 +872,7 @@ p = ggscatter(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype %in% c("N
    cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
    cor.coeff.args = list(method = "pearson", label.x = 0.4, label.y=0.05, label.sep = "\n"), palette = c("#E72644", "#86CFEC"),
    ylim = c(-0.4, 0.1))
-ggsave(paste0(work_dir, "Fig_S6D_edit_NEUROD1_subtype_x_Net_NOTCH_y_InflamedScore.png"), plot = p, width = 7, height = 7)
+ggsave(paste0(work_dir, "FigS7/FigS7C_NEUROD1_subtype_x_Net_NOTCH_y_InflamedScore.png"), plot = p, width = 7, height = 7)
 
 
 
@@ -887,6 +884,6 @@ p = ggscatter(SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$SCLC_subtype %in% c("N
    cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
    cor.coeff.args = list(method = "pearson", label.x = 0.15, label.y=0.05, label.sep = "\n"), palette = c("#E72644", "#86CFEC"),
    ylim = c(-0.4, 0.1))
-ggsave(paste0(work_dir, "Fig_S6D_edit_NEUROD1_subtype_x_NE_y_InflamedScore.png"), plot = p, width = 7, height = 7)
+ggsave(paste0(work_dir, "FigS7/S7C_edit_NEUROD1_subtype_x_NE_y_InflamedScore.png"), plot = p, width = 7, height = 7)
 
 

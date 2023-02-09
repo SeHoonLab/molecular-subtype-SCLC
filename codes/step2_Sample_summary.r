@@ -10,8 +10,7 @@ library(ggsci)
 library(cowplot)
 
 
-plot_dir = "../Figures/step2/"
-system(paste0("mkdir ", plot_dir))
+plot_dir = "../Figures/"
 Signature_df = read.xlsx("../ref_signature/Signature gene list.xlsx", header = TRUE, sheetName="Sheet1")
 NE_25_genelist = strsplit(Signature_df[Signature_df$Signature.name=="Neuroendocrine",2], ", ")[[1]]
 nonNE_25_genelist = strsplit(Signature_df[Signature_df$Signature.name=="Non-Neuroendocrine",2], ", ")[[1]]
@@ -35,7 +34,7 @@ p = ggplot(ggdat, aes(x = "", y = prop, fill = WTS_subtype)) +
   scale_fill_manual(values = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1")) +
   theme_void()
 
-ggsave(paste0(plot_dir,"Fig1C_WTS_subtype.png"), plot = p, width = 5, height = 5)
+ggsave(paste0(plot_dir,"Fig1/Fig1C_WTS_subtype.png"), plot = p, width = 5, height = 5)
 
 
 
@@ -51,7 +50,7 @@ p = ggplot(ggdat, aes(x = "", y = prop, fill = SCLC_subtype)) +
   geom_text(aes(y = lab.ypos, label = prop), color = "white", size = 3)+
   scale_fill_manual(values = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1")) +
   theme_void()
-ggsave(paste0(plot_dir,"Fig1C_IHC_subtype.png"), plot = p, width = 5, height = 5)
+ggsave(paste0(plot_dir,"Fig1/Fig1C_IHC_subtype.png"), plot = p, width = 5, height = 5)
 
 
 
@@ -77,7 +76,7 @@ Fig_S2A_left = ggplot(SCLC_subtype_WTS_meta[!is.na(SCLC_subtype_WTS_meta$smoking
 Fig_S2A_left = Fig_S2A_left + ylim(0, 230) + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
 
 
-ggsave(paste0(plot_dir, "Fig_S2A_left_Smoking_distribution.pdf"), plot = Fig_S2A_left, width = 2, height = 3)
+#ggsave(paste0(plot_dir, "FigS2/FigS2D_left_Smoking_distribution.pdf"), plot = Fig_S2A_left, width = 2, height = 3)
 
 
 smoking_history_df = SCLC_subtype_WTS_meta[!is.na(SCLC_subtype_WTS_meta$smoking2),c("smoking2", "SCLC_subtype")]
@@ -94,8 +93,8 @@ fisher_label = fisher.test(data.frame(smoking_history_df[smoking_history_df$subt
 
 Fig_S2A_right = ggplot(smoking_history_df, aes(x = subtype2, y=Prop*100,fill = Var1)) + geom_bar(stat="identity") + guides(fill="none") +
         ylab("Patient proportion(%)") + xlab("") + theme_bw() + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105))
-Fig_S2A_right = Fig_S2A_right  + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1")) + ggtitle(round(fisher_label,5))
-ggsave(paste0(plot_dir, "Fig_S2A_right_Smoking_distribution_Prop.pdf"), plot = Fig_S2A_right, width = 2.2, height = 3.5)
+Fig_S2A_right = Fig_S2A_right  + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
+ggsave(paste0(plot_dir, "FigS2/FigS2D_Smoking_distribution_Prop.pdf"), plot = Fig_S2A_right, width = 2.2, height = 3.5)
 
 
 
@@ -115,7 +114,7 @@ Fig_S2B_left = ggplot(SCLC_subtype_WTS_meta[!is.na(SCLC_subtype_WTS_meta$histolo
 Fig_S2B_left = Fig_S2B_left + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1")) + xlab("") + ylim(0, 230) + axis_theme
 
 
-ggsave(paste0(plot_dir, "Fig_S2B_left_Histology_site_distribution.pdf"), plot = Fig_S2B_left, width = 3.3, height = 3)
+#ggsave(paste0(plot_dir, "FigS2/FigS2D_Biopsy_Sites_distribution.pdf"), plot = Fig_S2B_left, width = 3.3, height = 3)
 
 
 
@@ -141,7 +140,7 @@ histology_df$subtype2 = factor(histology_df$subtype2, levels = c("Bronchus\n/ Lu
 Fig_S2B_right = ggplot(histology_df, aes(x = subtype2, y=Prop*100, fill = Var1)) + geom_bar(stat="identity") + guides(fill="none") +
         ylab("Patient proportion(%)") + xlab("") + theme_bw() + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105))
 Fig_S2B_right = Fig_S2B_right + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
-ggsave(paste0(plot_dir, "Fig_S2B_right_Histology_site_distribution_Prop.pdf"), plot = Fig_S2B_right, width = 3.5, height = 3)
+ggsave(paste0(plot_dir, "FigS2/FigS2D_Biopsy_Sites_distribution_Prop.pdf"), plot = Fig_S2B_right, width = 3.5, height = 3)
 
 
 
@@ -167,12 +166,12 @@ ini_stage_df$subtype2 = factor(ini_stage_df$subtype2, levels = c("LD", "ED"))
 Fig_S2C_right = ggplot(ini_stage_df, aes(x = subtype2, y=Prop*100, fill = Var1)) + geom_bar(stat="identity") + guides(fill="none") +
         ylab("Patient proportion(%)") + xlab("") + theme_bw() + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105))
 Fig_S2C_right = Fig_S2C_right + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
-ggsave(paste0(plot_dir, "Fig_S2C_right_LD_ED_distribution_Prop", round(fisher_label,4),".pdf"), plot = Fig_S2C_right, width = 2.2, height = 3.5)
+ggsave(paste0(plot_dir, "FigS2/FigS2D_LD_ED_IHC_distribution_Prop", round(fisher_label,4),".pdf"), plot = Fig_S2C_right, width = 2.2, height = 3.5)
 
 Fig_S2C_left = ggplot(ini_stage_df, aes(x = subtype2, y=Freq, fill = Var1)) + geom_bar(stat="identity") + guides(fill="none") +
         ylab("Patient Number") + xlab("") + theme_bw() + ylim(0, 200)
 Fig_S2C_left = Fig_S2C_left + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
-ggsave(paste0(plot_dir, "Fig_S2C_left_LD_ED_distribution.pdf"), plot = Fig_S2C_left, width = 1.8, height = 3)
+#ggsave(paste0(plot_dir, "FigS2/FigS2D_LD_ED_IHC_distribution.pdf"), plot = Fig_S2C_left, width = 1.8, height = 3)
 
 
 
@@ -241,7 +240,7 @@ clinic.info.OS.LD$SCLC_subtype = factor(clinic.info.OS.LD$SCLC_subtype, levels =
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.LD)
 cox_fit = coxph(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.LD) # 220628 OS -> OS_time
 
-pdf(paste0(plot_dir, "Fig2A_OS_Analysis_SCLC_subtype_LD.pdf"), width = 8, height = 6.2)
+pdf(paste0(plot_dir, "Fig2/Fig2A_OS_Analysis_IHC_subtype_LD.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = OS_fit,
   size = 1.5,
@@ -252,7 +251,7 @@ p = ggsurvplot(
   xlim=c(0,30),
   ylim=c(0,1),
   break.time.by=6,
-  title="OS Analysis in LD-patients: SCLC subtype",
+  title="OS Analysis in LD-patients: IHC subtype",
   font.title=c("bold"), font.subtitle=c("italic"),
   legend.title="Strata",
   pval = F, pval.coord = c(1, 0.25),
@@ -294,7 +293,7 @@ clinic.info.OS.ED$SCLC_subtype = factor(clinic.info.OS.ED$SCLC_subtype, levels =
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED)
 cox_fit = coxph(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED)
 
-pdf(paste0(plot_dir, "Fig2B_OS_Analysis_SCLC_subtype_ED.pdf"), width = 8, height = 6.2)
+pdf(paste0(plot_dir, "Fig2/Fig2B_OS_Analysis_IHC_subtype_ED.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = OS_fit,
   size = 1.5,
@@ -305,7 +304,7 @@ p = ggsurvplot(
   xlim=c(0,30),
   ylim=c(0,1),
   break.time.by=6,
-  title="OS Analysis in ED-patients: SCLC subtype",
+  title="OS Analysis in ED-patients: IHC subtype",
   font.title=c("bold"), font.subtitle=c("italic"), font.size=13,
   legend.title="Strata",
   pval = F, pval.coord = c(1, 0.25),
@@ -344,7 +343,7 @@ apply(overall_summary, 1, function(x) {paste0(x[seq(1,4)], collapse = ";")})
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED.CTx)
 cox_fit = coxph(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED.CTx) # 220628 OS -> OS_time
 
-pdf(paste0(plot_dir, "Fig2C_OS_Analysis_SCLC_subtype_ED_CTX.pdf"), width = 8, height = 6.2)
+pdf(paste0(plot_dir, "Fig2/Fig2C_OS_Analysis_IHC_subtype_ED_CTX.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = OS_fit,
   size = 1.5,
@@ -394,7 +393,7 @@ apply(overall_summary, 1, function(x) {paste0(x[seq(1,4)], collapse = ";")})
 OS_fit <- survfit(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED.IO)
 cox_fit = coxph(Surv(OS_time, OS_event==1)~SCLC_subtype, data = clinic.info.OS.ED.IO) 
 
-pdf(paste0(plot_dir, "Fig2D_OS_Analysis_SCLC_subtype_ED_IO.pdf"), width = 8, height = 6)
+pdf(paste0(plot_dir, "Fig2/Fig2D_OS_Analysis_IHC_subtype_ED_IO.pdf"), width = 8, height = 6)
 p = ggsurvplot(
   fit = OS_fit,
   size = 1.5,
@@ -450,7 +449,7 @@ clinic.info.ED.PFS$ctx_1st_pfs_event = as.numeric(clinic.info.ED.PFS$ctx_1st_pfs
 Pfs_fit <- survfit(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = clinic.info.ED.PFS)
 cox_fit = coxph(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = clinic.info.ED.PFS)
 
-pdf(paste0(plot_dir, "FigS3A_ctx_1st_pfs_SCLC_subtype_ED.pdf"), width = 8, height = 6.2)
+pdf(paste0(plot_dir, "FigS4/FigS4A_ctx_1st_pfs_IHC_subtype_ED.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = Pfs_fit,
   size = 1.5,
@@ -461,7 +460,7 @@ p = ggsurvplot(
   xlim=c(0,8),
   ylim=c(0,1),
   break.time.by=2,
-  title="Pfs Analysis in ED-patients: SCLC subtype",
+  title="Pfs Analysis in ED-patients: IHC subtype",
   font.title=c("bold"), font.subtitle=c("italic"), font.size=13,
   legend.title="Strata",
   pval = F, pval.coord = c(1, 0.25),
@@ -502,7 +501,7 @@ Pfs_fit <- survfit(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = 
 cox_fit = coxph(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = clinic.info.ED.PFS.CTx)
 
 
-pdf(paste0(plot_dir, "FigS3B_PFS_SCLC_subtype_ED_CTx_only.pdf"), width = 8, height = 6.2)
+pdf(paste0(plot_dir, "FigS4/FigS4B_PFS_IHC_subtype_ED_CTx_only.pdf"), width = 8, height = 6.2)
 p = ggsurvplot(
   fit = Pfs_fit,
   size = 1.5,
@@ -554,7 +553,7 @@ Pfs_fit <- survfit(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = 
 cox_fit = coxph(Surv(ctx_1st_pfs, ctx_1st_pfs_event==1)~SCLC_subtype, data = clinic.info.ED.PFS.IO)
 
 
-pdf(paste0(plot_dir, "FigS3C_PFS_SCLC_subtype_ED_CTx_IO.pdf"), width = 8, height = 6)
+pdf(paste0(plot_dir, "FigS4/FigS4C_PFS_IHC_subtype_ED_CTx_IO.pdf"), width = 8, height = 6)
 p = ggsurvplot(
   fit = Pfs_fit,
   size = 1.5,
@@ -624,7 +623,7 @@ SCLC_subtype_WTS_meta$NEUROD1_H_Score = as.numeric(SCLC_subtype_WTS_meta$NEUROD1
 
 
 p = ggscatter(SCLC_subtype_WTS_meta, x="NEUROD1_H_Score", y = "ASCL1_H_Score", shape = "SCLC_subtype", color = "SCLC_subtype", palette = c("#BC3C29", "#0072B5", "#E18727"), ellipse=TRUE)
-ggsave(paste0(plot_dir, "Fig_S1B_ASCL1_NEUROD1_H_score_scatterPlot.pdf"), plot = p, width = 7, height = 7)
+ggsave(paste0(plot_dir, "FigS1/FigS1B_ASCL1_NEUROD1_H_score_scatterPlot.pdf"), plot = p, width = 7, height = 7)
 
 
 
@@ -717,9 +716,9 @@ for(i_name in c("ASCL1 & ND1 Shared targets", "ASCL1 high signatures cell line",
                     p = ggplot(plot_df, aes(x=SCLC_subtype, y = Singscore)) + geom_boxplot(aes(fill = SCLC_subtype)) + scale_fill_nejm() + theme_bw()
                     p = p + ggtitle(paste0(i_name, "\n", "wilcox(NE vs P):",round(pvalue[1], 5), "\n","wilcox(N vs A&AN):", round(pvalue[2], 5)))
                     p = p + stat_compare_means(comparisons = my_comparisons, method = "wilcox") + axis_theme + theme(legend.position="none") + ylim(min(plot_df$Singscore), max(plot_df$Singscore)+0.1)
-                    ggsave(paste0(plot_dir, "Fig_S2A_", i_name, ".pdf"), plot = p, width = 4, height = 4)
+                    ggsave(paste0(plot_dir, "FigS2/FigS2A_", i_name, ".pdf"), plot = p, width = 4, height = 4)
                     p = p + ggtitle("")
-                    ggsave(paste0(plot_dir, "Fig_S2A", i_name, ".png"), plot = p, width = 4, height = 4)
+                    #ggsave(paste0(plot_dir, "FigS2/FigS2A", i_name, ".png"), plot = p, width = 4, height = 4)
             }
   }
 
@@ -754,7 +753,7 @@ for(i_poster_gene in c("NE_signature", "non-NE_signature")){
         print(pvalue)
         p = ggplot(tmp, aes(x=SCLC_subtype, y=gene_expr, fill = SCLC_subtype)) + geom_boxplot() #ggtitle(paste0(i_poster_gene, ": 182 WTS\nwilcox(A&AN&N vs P):", pvalue)) + ylab(i_poster_gene)
         p = p + theme_bw() + scale_fill_nejm() + theme(legend.position="none") +  ylab(gsub("_", " ", i_poster_gene)) + xlab("")
-        ggsave(paste0(plot_dir, "/Fig_S2A_", i_poster_gene, "_CancerCell_gene_wilcox(A&AN_vs_N).png"), plot = p + axis_theme, width = 4, height = 4)
+        ggsave(paste0(plot_dir, "FigS2/FigS2A_", i_poster_gene, "_CancerCell_gene.png"), plot = p + axis_theme, width = 4, height = 4)
 }
 
 
@@ -776,5 +775,133 @@ pvalue = wilcox.test(tmp[tmp$SCLC_subtype%in%c("A", "AN", "N"),"gene_expr"], tmp
 p = ggplot(tmp, aes(x=SCLC_subtype, y=gene_expr, fill = SCLC_subtype)) + geom_boxplot() #ggtitle(paste0(i_poster_gene, ": 182 WTS\nwilcox(A&AN&N vs P):", pvalue)) + ylab(i_poster_gene)
 p = p + theme_bw() + scale_fill_nejm() + theme(legend.position="none") +  ylab("Tuft cell signature") + xlab("") #+ xlab("IHC subtype") + ggtitle(paste0(paste0(c("Singscore: Tuft cell markers"), collapse = ";"), "\nwilcox (A&AN&N vs P)", pvalue))
 
-ggsave(paste0(plot_dir, "/Fig_S2A_Tuft_gene_wilcox(A&AN&P_vs_N).png"), plot = p + axis_theme, width = 4, height = 4)
+ggsave(paste0(plot_dir, "FigS2/FigS2A_Tuft_gene.png"), plot = p + axis_theme, width = 4, height = 4)
+
+
+
+
+
+######### NMF
+
+
+SCLC_subtype_WTS_meta$NMF_subtype = factor(SCLC_subtype_WTS_meta$NMF_subtype, levels = c("A", "N", "P", "I", "equivocal"))
+
+
+
+OS_fit <- survfit(Surv(OS_time, OS_event==1)~NMF_subtype, data = SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$ini_stage=="ED" & SCLC_subtype_WTS_meta$NMF!="equivocal",])
+cox_fit = coxph(Surv(OS_time, OS_event==1)~NMF_subtype, data = SCLC_subtype_WTS_meta[SCLC_subtype_WTS_meta$ini_stage=="ED" & SCLC_subtype_WTS_meta$NMF!="equivocal",])
+
+pdf(paste0(plot_dir, "FigS4/FigS4F_OS_Analysis_NMF_subtype_ED.pdf"), width = 8, height = 6.2)
+p = ggsurvplot(
+  fit = OS_fit,
+  size = 1.5,
+  xlab = "Months since Treatment",
+  ylab = "OS",
+  surv.median.line = "hv",
+  palette = c("#BC3C29", "#E18727", "#20854E", "#7876B1"),
+  xlim=c(0,30),
+  ylim=c(0,1),
+  break.time.by=6,
+  title="OS Analysis in ED-patients: NMF subtype",
+  font.title=c("bold"), font.subtitle=c("italic"),
+  legend.title="Strata",
+  pval = T, pval.coord = c(1, 0.25),
+  surv.scale = "percent",
+  risk.table = TRUE, risk.table.height = 0.3, conf.int = F)
+p$plot <- p$plot + thickness
+print(p)
+dev.off()
+
+
+
+OS_fit_summary = data.frame(summary(OS_fit)$table)
+rownames(OS_fit_summary) = gsub("=", "", rownames(OS_fit_summary))
+OS_fit_summary$rownames = rownames(OS_fit_summary)
+
+
+cox_summary = cbind(data.frame(summary(cox_fit)$coefficients), data.frame(summary(cox_fit)$conf.int))
+cox_summary$rownames = rownames(cox_summary)
+
+
+overall_summary = merge(OS_fit_summary, cox_summary, by="rownames", all=TRUE)
+
+overall_summary = (data.frame(overall_summary$rownames,
+                 paste0(round(overall_summary$median, 1), " (", round(overall_summary$X0.95LCL, 1), "-", round(overall_summary$X0.95UCL, 1), ")"),
+                 paste0(round(overall_summary$exp.coef., 1), " (", round(overall_summary$lower..95, 1), "-", round(overall_summary$upper..95, 1),")"),
+                 overall_summary$Pr...z..))
+colnames(overall_summary) = c("group", "mPFS", "HR", "P")
+overall_summary$group = gsub(" ", "", overall_summary$group)
+overall_summary$P = round(overall_summary$P, 3)
+
+apply(overall_summary, 1, function(x) {paste0(x[seq(1,4)], collapse = ";")})
+
+
+
+
+
+#################################
+
+
+
+library(caret)
+library(org.Hs.eg.db)
+library(scales)
+ggplotConfusionMatrix <- function(m){
+  mytitle <- paste("Accuracy = ", percent_format()(m$overall[1]),
+                   ", Kappa agreement = ", percent_format()(m$overall[2]))
+  p <-
+    ggplot(data = as.data.frame(m$table) ,
+           aes(x = Reference, y = Prediction)) +
+    geom_tile(aes(fill = log(Freq)), colour = "white") +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    geom_text(aes(x = Reference, y = Prediction, label = Freq, fontface=2), size = 6) +
+    theme(legend.position = "none") +
+    ggtitle(mytitle) +
+    theme(plot.title = element_text(size = 20, color = "black", face = "bold"),
+                axis.text.x = element_text(size = 20, color = "black", face = "bold"),
+                axis.text.y = element_text(size = 20, color = "black", face = "bold"))
+  return(p)
+}
+
+Confusion_matrix_df = data.frame(SCLC_subtype_WTS_meta$NMF_subtype, SCLC_subtype_WTS_meta$SCLC_subtype)
+Confusion_matrix_df = Confusion_matrix_df[Confusion_matrix_df[,1]!="equivocal",]
+colnames(Confusion_matrix_df) = c("NMF_subtype", "IHC_subtype")
+
+##### Calculate kappa
+kappa_df = Confusion_matrix_df
+kappa_df$NMF_subtype = as.character(kappa_df$NMF_subtype)
+kappa_df$NMF_subtype[kappa_df$NMF_subtype!="A"] = "non-A"
+kappa_df$IHC_subtype = as.character(kappa_df$IHC_subtype)
+kappa_df$IHC_subtype[kappa_df$IHC_subtype!="A"] = "non-A"
+cfm3 <- confusionMatrix(factor(kappa_df$IHC_subtype, levels = c("A", "non-A")),
+                        factor(kappa_df$NMF_subtype, levels = c("A", "non-A")))
+print("FigS3B : A subtype confusion matrix\n")
+print(cfm3)
+
+
+
+##### Calculate kappa
+kappa_df = Confusion_matrix_df
+kappa_df$NMF_subtype = as.character(kappa_df$NMF_subtype)
+kappa_df$NMF_subtype[kappa_df$NMF_subtype!="N"] = "non-N"
+kappa_df$IHC_subtype = as.character(kappa_df$IHC_subtype)
+kappa_df$IHC_subtype[kappa_df$IHC_subtype!="N"] = "non-N"
+cfm3 <- confusionMatrix(factor(kappa_df$IHC_subtype, levels = c("N", "non-N")),
+                        factor(kappa_df$NMF_subtype, levels = c("N", "non-N")))
+print("FigS3B : N subtype confusion matrix\n")
+print(cfm3)
+
+
+
+##### Calculate kappa
+kappa_df = Confusion_matrix_df
+kappa_df$NMF_subtype = as.character(kappa_df$NMF_subtype)
+kappa_df$NMF_subtype[kappa_df$NMF_subtype!="P"] = "non-P"
+kappa_df$IHC_subtype = as.character(kappa_df$IHC_subtype)
+kappa_df$IHC_subtype[kappa_df$IHC_subtype!="P"] = "non-P"
+cfm3 <- confusionMatrix(factor(kappa_df$IHC_subtype, levels = c("P", "non-P")),
+                        factor(kappa_df$NMF_subtype, levels = c("P", "non-P")))
+print("FigS3B : P subtype confusion matrix\n")
+print(cfm3)
+
 

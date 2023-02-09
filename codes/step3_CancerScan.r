@@ -17,8 +17,7 @@ source("./functions/Custom_subsetMaf.R")
 
 
 
-plot_dir = "../Figures/step3/"
-system(paste0("mkdir ", plot_dir))
+plot_dir = "../Figures/"
 
 SCLC_meta = read.xlsx("../resource/Essential_check_Edited.xlsx", header = TRUE, sheetName = "Sheet1")
 
@@ -106,7 +105,7 @@ pathway_and_gene_ordering[["annotation"]] = rev(pathway_and_gene_ordering[["anno
 pathway_and_gene_ordering[["gene list"]] = c(pathway_and_gene_ordering[["gene list"]][seq(1,34)], "MYCN", pathway_and_gene_ordering[["gene list"]][seq(35, length(pathway_and_gene_ordering[["gene list"]]))])
 pathway_and_gene_ordering[["annotation"]] = c(pathway_and_gene_ordering[["annotation"]][seq(1,34)], "MYCN", pathway_and_gene_ordering[["annotation"]][seq(35, length(pathway_and_gene_ordering[["annotation"]]))])
 
-pdf(paste0(plot_dir, "Fig3A_All_type_oncoplot_by_pathway_geneSet.pdf"), width = 16, height = 10)
+pdf(paste0(plot_dir, "Fig3/Fig3A_All_type_oncoplot_by_pathway_geneSet.pdf"), width = 16, height = 10)
 color_anno = c("#BC3C29", "#0072B5", "#E18727", "#20854E", "#7876B1"); names(color_anno) = c("A", "AN", "N", "P", "TN")
 oncoplot(maf = laml, sortByAnnotation = TRUE, genes = c(pathway_and_gene_ordering[["gene list"]]), keepGeneOrder = TRUE, clinicalFeatures = c('SCLC_subtype'), annotationColor=list("SCLC_subtype"=color_anno))
 dev.off()
@@ -130,13 +129,13 @@ Cond1_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(dat
 Cond2_maf = CustomsubsetMaf(damaging_laml,  mafObj = TRUE, fields = colnames(data.frame(damaging_laml@data))[seq(1,99)], clinQuery = 'AAN_N_P %in% c("A&AN", "P")')
 
 Cond1_maf_CE = clinicalEnrichment(maf = Cond1_maf, clinicalFeature = 'AAN_N_P')
-pdf(paste0(plot_dir, "Fig3C_EnrichmentPlot_condition1_AAN_vs_N_default_function_example.pdf"), width = 7, height = 4)
+pdf(paste0(plot_dir, "Fig3/Fig3C_EnrichmentPlot_condition1_AAN_vs_N_default_function_example.pdf"), width = 7, height = 4)
 custom_plotEnrichmentResults(enrich_res = Cond1_maf_CE, pVal = 0.1, geneFontSize = 1, annoFontSize = 1)
 dev.off()
 
 
 Cond2_maf_CE = clinicalEnrichment(maf = Cond2_maf, clinicalFeature = 'AAN_N_P')
-pdf(paste0(plot_dir, "Fig3B_EnrichmentPlot_condition2_A&AN_vs_P_custom_function_example.pdf"), width = 8, height = 6)
+pdf(paste0(plot_dir, "Fig3/Fig3B_EnrichmentPlot_condition2_A&AN_vs_P_custom_function_example.pdf"), width = 8, height = 6)
 custom_plotEnrichmentResults(enrich_res = Cond2_maf_CE, pVal = 0.1, geneFontSize = 1, annoFontSize = 1)
 dev.off()
 
@@ -238,7 +237,7 @@ for(i_gene in c(unique(plot_maf_subset$Hugo_Symbol), "ADGRA2_comb")){
 				  surv.scale = "percent",
 				  risk.table = TRUE, risk.table.height = 0.3, conf.int = F)
                         p$plot <- p$plot + thickness
-                        pdf(paste0(plot_dir, "Fig3F_", print_classification, "_enriched_",paste0(i_gene, collapse = ","),"_", length(mutant_samples), "_", Total_samples,".pdf"), width = 5.5, height = 5)
+                        pdf(paste0(plot_dir, "Fig3/Fig3F_", print_classification, "_enriched_",paste0(i_gene, collapse = ","),"_", length(mutant_samples), "_", Total_samples,".pdf"), width = 5.5, height = 5)
                         print(p)
                         dev.off()
 
@@ -284,7 +283,7 @@ p = EnhancedVolcano(Volcano_df, title = paste0("All samples, Prognostic Mutation
     lab = rownames(Volcano_df), selectLab = rownames(Volcano_df)[Volcano_df$Mutant_samples>=3 & Volcano_df$pvalue <= 0.1],
     x = 'HR', y = 'pvalue', xlim = c(-3.5, 3.5), xlab = "log2 HR",drawConnectors = TRUE, cutoffLineWidth=0,
     pCutoff = 0.1, colCustom = keyvals.colour, ylim = c(0, 3), colAlpha=1)
-ggsave(paste0(plot_dir, "Fig3E_VolcanoPlot_SurvDiff_Pvalue_and_HR_Mutant_sample_labeled.png"), plot = p, width = 7, height = 7)
+ggsave(paste0(plot_dir, "Fig3/Fig3E_VolcanoPlot_SurvDiff_Pvalue_and_HR_Mutant_sample_labeled.png"), plot = p, width = 7, height = 7)
 
 
 ####################################################
@@ -406,7 +405,7 @@ p = ggplot(RTK.RAS_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCL
         ggtitle(paste0("RTK-RAS: ", round(fisher.test(Fig3D_plot_df)$p.value,3)))+ xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
 
 p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727")) + axis_theme + theme(legend.position="none")
-ggsave(paste0(plot_dir, "Fig3D_RTK.RAS_by_samples.png"), plot = p, width = 2.8, height = 4)
+ggsave(paste0(plot_dir, "Fig3/Fig3D_RTK.RAS_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
 Fig3D_plot_df = data.frame(colSums(NOTCH_df[c("NOTCH_damaging_A", "NOTCH_damaging_AN"),c("matched_samples", "total_samples")]),
@@ -418,7 +417,7 @@ p = ggplot(NOTCH_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_
         ggtitle(paste0("NOTCH: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
 
 p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727")) + axis_theme + theme(legend.position="none")
-ggsave(paste0(plot_dir, "Fig3D_NOTCH_by_samples.png"), plot = p, width = 2.8, height = 4)
+ggsave(paste0(plot_dir, "Fig3/Fig3D_NOTCH_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
 Fig3D_plot_df = data.frame(colSums(PI3K_df[c("PI3K_damaging_A", "PI3K_damaging_AN"),c("matched_samples", "total_samples")]),
@@ -430,7 +429,7 @@ p = ggplot(PI3K_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_s
         ggtitle(paste0("PI3K: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
 
 p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727")) + axis_theme + theme(legend.position="none")
-ggsave(paste0(plot_dir, "Fig3D_PI3K_by_samples.png"), plot = p, width = 2.8, height = 4)
+ggsave(paste0(plot_dir, "Fig3/Fig3D_PI3K_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
 
@@ -443,7 +442,7 @@ p = ggplot(TP53_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_s
         ggtitle(paste0("TP53_df: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100))
 
 p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727")) + axis_theme + theme(legend.position="none")
-ggsave(paste0(plot_dir, "Fig3D_TP53_by_samples.png"), plot = p, width = 2.8, height = 4)
+ggsave(paste0(plot_dir, "Fig3/Fig3D_TP53_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 
 Fig3D_plot_df = data.frame(colSums(CellCycle_df[c("Cell_Cycle_damaging_A", "Cell_Cycle_damaging_AN"),c("matched_samples", "total_samples")]),
@@ -455,7 +454,7 @@ p = ggplot(CellCycle_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = S
         ggtitle(paste0("CellCycle_df: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100))
 
 p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727")) + axis_theme + theme(legend.position="none")
-ggsave(paste0(plot_dir, "Fig3D_CellCycle_by_samples.png"), plot = p, width = 2.8, height = 4)
+ggsave(paste0(plot_dir, "Fig3/Fig3D_CellCycle_by_samples.png"), plot = p, width = 2.8, height = 4)
 
 ################################################
 
@@ -497,7 +496,7 @@ for(i_gene in c("RICTOR", "SKP2","IL7R")){
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% CNV alterations") +
                 xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
-        ggsave(paste0(plot_dir, "Fig_S4C_CNV_alterated_Samples_", i_gene, ".png"), plot = p, width = 3.5, height = 4)
+        ggsave(paste0(plot_dir, "FigS5/FigS5C_CNV_alterated_Samples_", i_gene, ".png"), plot = p, width = 3.5, height = 4)
 }
 
 
@@ -514,7 +513,7 @@ for(i_gene in c("MYC", "MYCL")){
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% CNV alterations") +
                 xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 50))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
-        ggsave(paste0(plot_dir, "Fig_S4C_CNV_alterated_Samples_", i_gene, ".png"), plot = p, width = 3.5, height = 4)
+        ggsave(paste0(plot_dir, "FigS5/FigS5C_CNV_alterated_Samples_", i_gene, ".png"), plot = p, width = 3.5, height = 4)
 }
 
 
@@ -543,7 +542,7 @@ p = ggplot(plot_df,aes(x=SCLC_subtype, y=median, fill = SCLC_subtype)) + geom_ba
 p = p + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
 
 
-ggsave(paste0(plot_dir,"Fig_S4A_TMB_SUKSES_median_by_subtype.png"), plot=p, width = 5, height=5)
+ggsave(paste0(plot_dir,"FigS5/FigS5A_TMB_SUKSES_median_by_subtype.png"), plot=p, width = 5, height=5)
 
 
 
@@ -572,7 +571,7 @@ p = p + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", 
 p = p + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105))
 p = p + coord_cartesian(ylim=c(50, 105))
 
-ggsave(paste0(plot_dir, "Fig_S4B_purity_SUKSES_mean_by_subtype.png"), plot=p, width = 5, height=5)
+ggsave(paste0(plot_dir, "FigS5/FigS5B_purity_SUKSES_mean_by_subtype.png"), plot=p, width = 5, height=5)
 
 
 
@@ -653,7 +652,15 @@ for(i_gene in c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1")){
                                                  round(fisher.test(Fisher_test2)$p.value,3), ";",
                                                  round(fisher.test(Fisher_test3)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 20))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
-        ggsave(paste0(plot_dir, "Fig_S4D_Alterated_Samples_", i_gene, ".png"), plot = p, width = 3.8, height = 4)
+	if(i_gene == "MYC"){
+		p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% Damaging & CNV alteration") +
+                xlab("") + ggtitle(paste0(i_gene, ":",
+                                                 round(fisher.test(Fisher_test1)$p.value,3), ";",
+                                                 round(fisher.test(Fisher_test2)$p.value,3), ";",
+						 round(fisher.test(Fisher_test3)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 50))
+		p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
+	}
+        ggsave(paste0(plot_dir, "FigS5/FigS5D_Alterated_Samples_", i_gene, ".png"), plot = p, width = 3.8, height = 4)
 }
 
 
