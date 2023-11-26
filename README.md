@@ -1,5 +1,18 @@
 # molecular-subtype-SCLC
-SeHoonLab
+
+Reproducibility check
+
+1. git clone https://github.com/SeHoonLab/molecular-subtype-SCLC
+2. cd molecular-subtype-SCLC/codes/
+3. Rscript step0_install_R_library.r
+4. Rscript step1_RNA_process.r
+5. Rscript step2_Sample_summary.r
+6. Rscript step3_CancerScan.r
+7. Rscript step4_RNA_dataset_Analysis.r
+
+Following Figures generated in "molecular-subtype-SCLC/Figures/" diretory
+
+
 
 # TME subtype analysis
 https://github.com/BostonGene/MFP
