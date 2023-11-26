@@ -10,7 +10,7 @@ Reproducibility check
 6. Rscript step3_CancerScan.r
 7. Rscript step4_RNA_dataset_Analysis.r
 
-Following Figures generated in "molecular-subtype-SCLC/Figures/" diretory
+Following figures are generated in "molecular-subtype-SCLC/Figures/" diretory
 
 
 
