@@ -538,24 +538,11 @@ for(i_gene in c("MYC", "MYCL")){
 
 TMB_df = data.frame("SCLC_subtype"=laml@clinical.data$SCLC_subtype, "TMB"=laml@clinical.data$CS_TMB)
 TMB_df$TMB = as.numeric(TMB_df$TMB)
-plot_df = data.frame(as.character(unique(TMB_df$SCLC_subtype)))
-colnames(plot_df) = c("SCLC_subtype")
-plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "AN", "N", "P", "TN"))
-plot_df$median = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
-                 function(x) {median(TMB_df[TMB_df$SCLC_subtype==x,2])}))
-plot_df$Q3 = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
-                 function(x) {quantile(TMB_df[TMB_df$SCLC_subtype==x,2], 0.75)}))
-plot_df$Q1 = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
-                 function(x) {quantile(TMB_df[TMB_df$SCLC_subtype==x,2], 0.25)}))
 
-p = ggplot(TMB_df,aes(x=SCLC_subtype, y=TMB, fill = SCLC_subtype)) + geom_boxplot() + theme_bw() + guides(fill="none") +
-	axis_theme + labs(title=paste0("TMB_SUKSES median by subtype")) + xlab("SCLC subtype") + ylab("Median TMB") + ylim(0,15) +
-	scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
+p = ggplot(TMB_df,aes(x=SCLC_subtype, y=TMB, fill = SCLC_subtype)) + geom_boxplot(outlier.shape=NA) + theme_bw() + guides(fill="none") +
+	axis_theme + labs(title=paste0("TMB_SUKSES median by subtype")) + xlab("SCLC subtype") + ylab("Median TMB") +
+	scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1")) + scale_y_continuous(limits=c(0,16)) 
 
-p = ggplot(plot_df,aes(x=SCLC_subtype, y=median, fill = SCLC_subtype)) + geom_bar(stat="identity") +
-        geom_errorbar(mapping = aes(SCLC_subtype,ymin=Q1, ymax=Q3, width = 0.2)) + theme_bw() + guides(fill="none") +
-        labs(title=paste0("TMB_SUKSES median by subtype")) + xlab("SCLC subtype") + ylab("Median TMB")
-p = p + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
 
 
 ggsave(paste0(plot_dir,"FigS5/FigS5A_TMB_SUKSES_median_by_subtype.png"), plot=p, width = 5, height=5)
@@ -572,27 +559,24 @@ plot_df$SCLC_subtype = factor(plot_df$SCLC_subtype, levels = c("A", "AN", "N", "
 plot_df$mean = as.numeric(lapply(as.character(unique(purity_df$SCLC_subtype)),
                  function(x) {mean(purity_df[purity_df$SCLC_subtype==x,2])}))
 
-plot_df$Q3 = as.numeric(lapply(as.character(unique(purity_df$SCLC_subtype)),
-                 function(x) {quantile(purity_df[purity_df$SCLC_subtype==x,2], 0.75)}))
-
-plot_df$Q1 = as.numeric(lapply(as.character(unique(purity_df$SCLC_subtype)),
-                 function(x) {quantile(purity_df[purity_df$SCLC_subtype==x,2], 0.25)}))
+plot_df$SD = as.numeric(lapply(as.character(unique(purity_df$SCLC_subtype)),
+                 function(x) {sd(purity_df[purity_df$SCLC_subtype==x,2])}))
 
 
 
-p = ggplot(plot_df,aes(x=SCLC_subtype, y=mean*100, fill = SCLC_subtype)) + geom_bar(stat="identity") +
-        geom_errorbar(mapping = aes(SCLC_subtype,ymin=Q1*100, ymax=Q3*100, width = 0.2)) + theme_bw() + guides(fill="none") +
-        labs(title=paste0("purity SUKSES mean by subtype")) + xlab("SCLC subtype") + ylab("Mean purity")
-p = p + axis_theme + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
-p = p + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105))
-p = p + coord_cartesian(ylim=c(50, 105))
+plot_df$SD_P = (plot_df$mean + plot_df$SD)*100
+plot_df$SD_P[plot_df$SD_P>100] = 100 
+
+p = ggplot(plot_df, aes(x = SCLC_subtype, y = mean*100)) +
+  geom_point(size = 3) + # Add the points for mean values
+  geom_errorbar(aes(ymin = (mean - SD)*100, ymax = SD_P), width = 0.2) + # Add error bars
+  ylab("Tumor Purity (mean ± SD)") + # Label the y-axis
+  xlab("") + theme_bw() + # Remove the x-axis label
+	  scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1")) +
+		  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 105)) +
+		  coord_cartesian(ylim=c(50, 105))
 
 ggsave(paste0(plot_dir, "FigS5/FigS5B_purity_SUKSES_mean_by_subtype.png"), plot=p, width = 5, height=5)
-
-
-
-
-
 
 
 #######################
