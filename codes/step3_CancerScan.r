@@ -411,7 +411,9 @@ ggsave(paste0(plot_dir, "Fig3/Fig3D_RTK.RAS_by_samples.png"), plot = p, width = 
 Fig3D_plot_df = data.frame(colSums(NOTCH_df[c("NOTCH_damaging_A", "NOTCH_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(NOTCH_df["NOTCH_damaging_N",c("matched_samples", "total_samples")]))
 colnames(Fig3D_plot_df) = c("A&AN", "N")
-fisher.test(Fig3D_plot_df)
+Fig3D_plot_df[3,] = Fig3D_plot_df[2,]-Fig3D_plot_df[1,]
+fisher.test(Fig3D_plot_df[c(1,3),])
+
 
 p = ggplot(NOTCH_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
         ggtitle(paste0("NOTCH: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
@@ -423,7 +425,9 @@ ggsave(paste0(plot_dir, "Fig3/Fig3D_NOTCH_by_samples.png"), plot = p, width = 2.
 Fig3D_plot_df = data.frame(colSums(PI3K_df[c("PI3K_damaging_A", "PI3K_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(PI3K_df["PI3K_damaging_N",c("matched_samples", "total_samples")]))
 colnames(Fig3D_plot_df) = c("A&AN", "N")
-fisher.test(Fig3D_plot_df)
+Fig3D_plot_df[3,] = Fig3D_plot_df[2,]-Fig3D_plot_df[1,]
+fisher.test(Fig3D_plot_df[c(1,3),])
+
 
 p = ggplot(PI3K_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
         ggtitle(paste0("PI3K: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
@@ -436,7 +440,8 @@ ggsave(paste0(plot_dir, "Fig3/Fig3D_PI3K_by_samples.png"), plot = p, width = 2.8
 Fig3D_plot_df = data.frame(colSums(TP53_df[c("TP53_damaging_A", "TP53_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(TP53_df["TP53_damaging_N",c("matched_samples", "total_samples")]))
 colnames(Fig3D_plot_df) = c("A&AN", "N")
-fisher.test(Fig3D_plot_df)
+Fig3D_plot_df[3,] = Fig3D_plot_df[2,]-Fig3D_plot_df[1,]
+fisher.test(Fig3D_plot_df[c(1,3),])
 
 p = ggplot(TP53_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
         ggtitle(paste0("TP53_df: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100))
@@ -448,7 +453,8 @@ ggsave(paste0(plot_dir, "Fig3/Fig3D_TP53_by_samples.png"), plot = p, width = 2.8
 Fig3D_plot_df = data.frame(colSums(CellCycle_df[c("Cell_Cycle_damaging_A", "Cell_Cycle_damaging_AN"),c("matched_samples", "total_samples")]),
 as.numeric(CellCycle_df["Cell_Cycle_damaging_N",c("matched_samples", "total_samples")]))
 colnames(Fig3D_plot_df) = c("A&AN", "N")
-fisher.test(Fig3D_plot_df)
+Fig3D_plot_df[3,] = Fig3D_plot_df[2,]-Fig3D_plot_df[1,]
+chisq.test(Fig3D_plot_df[c(1,3),])
 
 p = ggplot(CellCycle_df, aes(x=SCLC_subtype, y = Sample_proportion*100, fill = SCLC_subtype)) + geom_bar(stat="identity") + ylab("% damaging mutations") +
         ggtitle(paste0("CellCycle_df: ", round(fisher.test(Fig3D_plot_df)$p.value,3))) + xlab("") + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 100))
@@ -491,10 +497,13 @@ for(i_gene in c("RICTOR", "SKP2","IL7R")){
         Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match")]),
                                  as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples")]))
         Fisher_test = rbind(colSums(Fisher_test[c(1,2),]), Fisher_test[3,])
-        colnames(Fisher_test) = c("match", "notMatch")
+        colnames(Fisher_test) = c("match", "Total")
         rownames(Fisher_test) = c("A&AN", "N")
+	Fisher_test[,3] = Fisher_test[,2]-Fisher_test[,1]
+	print(fisher.test(Fisher_test[,c(1,3)])$p.value)
+	print(chisq.test(Fisher_test[,c(1,3)])$p.value)
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% CNV alterations") +
-                xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
+                xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test[,c(1,3)])$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 30))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
         ggsave(paste0(plot_dir, "FigS5/FigS5C_CNV_alterated_Samples_", i_gene, ".png"), plot = p, width = 3.5, height = 4)
 }
@@ -508,8 +517,11 @@ for(i_gene in c("MYC", "MYCL")){
         Fisher_test = data.frame(as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match", "SCLC-P_match")]),
                                  as.numeric(cnv_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples", "SCLC-P_samples")]))
         Fisher_test = rbind(colSums(Fisher_test[c(1,2, 3),]), Fisher_test[4,])
-        colnames(Fisher_test) = c("match", "notMatch")
+        colnames(Fisher_test) = c("match", "Total")
         rownames(Fisher_test) = c("NE", "P")
+	Fisher_test[,3] = Fisher_test[,2]-Fisher_test[,1]
+	print(fisher.test(Fisher_test[,c(1,3)])$p.value)
+	print(chisq.test(Fisher_test[,c(1,3)])$p.value)
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% CNV alterations") +
                 xlab("") + ggtitle(paste0(i_gene, ":", round(fisher.test(Fisher_test)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 50))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
@@ -535,6 +547,10 @@ plot_df$Q3 = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
                  function(x) {quantile(TMB_df[TMB_df$SCLC_subtype==x,2], 0.75)}))
 plot_df$Q1 = as.numeric(lapply(as.character(unique(TMB_df$SCLC_subtype)),
                  function(x) {quantile(TMB_df[TMB_df$SCLC_subtype==x,2], 0.25)}))
+
+p = ggplot(TMB_df,aes(x=SCLC_subtype, y=TMB, fill = SCLC_subtype)) + geom_boxplot() + theme_bw() + guides(fill="none") +
+	axis_theme + labs(title=paste0("TMB_SUKSES median by subtype")) + xlab("SCLC subtype") + ylab("Median TMB") + ylim(0,15) +
+	scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E", "#7876B1"))
 
 p = ggplot(plot_df,aes(x=SCLC_subtype, y=median, fill = SCLC_subtype)) + geom_bar(stat="identity") +
         geom_errorbar(mapping = aes(SCLC_subtype,ymin=Q1, ymax=Q3, width = 0.2)) + theme_bw() + guides(fill="none") +
@@ -631,42 +647,40 @@ for(i_gene in c("MYC", "PTEN", "CDKN2A", "MCL1", "H3F3A", "NOTCH1")){
 
         Fisher_test1 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match")]),
                                  as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples")]))
-        colnames(Fisher_test1) = c("match", "notMatch")
+        colnames(Fisher_test1) = c("match", "Total")
         rownames(Fisher_test1) = c("A", "AN")
+	Fisher_test1[,3] = Fisher_test1[,2]-Fisher_test1[,1]
 
         Fisher_test2 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-N_match")]),
                                  as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-N_samples")]))
         Fisher_test2 = rbind(colSums(Fisher_test2[c(1,2),]), Fisher_test2[3,])
-        colnames(Fisher_test2) = c("match", "notMatch")
+        colnames(Fisher_test2) = c("match", "Total")
         rownames(Fisher_test2) = c("A&AN", "N")
+	Fisher_test2[,3] = Fisher_test2[,2]-Fisher_test2[,1]
 
         Fisher_test3 = data.frame(as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_match", "SCLC-AN_match", "SCLC-P_match")]),
                                  as.numeric(damaging_alteration_by_gene[i_gene, c("SCLC-A_samples", "SCLC-AN_samples", "SCLC-P_samples")]))
         Fisher_test3 = rbind(colSums(Fisher_test3[c(1,2),]), Fisher_test3[3,])
-        colnames(Fisher_test3) = c("match", "notMatch")
+        colnames(Fisher_test3) = c("match", "Total")
         rownames(Fisher_test3) = c("A&AN", "p")
+	Fisher_test3[,3] = Fisher_test3[,2]-Fisher_test3[,1]
 
         p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% Damaging & CNV alteration") +
                 xlab("") + ggtitle(paste0(i_gene, ":",
-                                                 round(fisher.test(Fisher_test1)$p.value,3), ";",
-                                                 round(fisher.test(Fisher_test2)$p.value,3), ";",
-                                                 round(fisher.test(Fisher_test3)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 20))
+                                                 round(fisher.test(Fisher_test1[,c(1,3)])$p.value,3), ";",
+                                                 round(fisher.test(Fisher_test2[,c(1,3)])$p.value,3), ";",
+                                                 round(fisher.test(Fisher_test3[,c(1,3)])$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 20))
         p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
 	if(i_gene == "MYC"){
 		p = ggplot(plot_df, aes(x=variable, y = value*100, fill = variable)) + geom_bar(stat="identity") + ylab("% Damaging & CNV alteration") +
                 xlab("") + ggtitle(paste0(i_gene, ":",
-                                                 round(fisher.test(Fisher_test1)$p.value,3), ";",
-                                                 round(fisher.test(Fisher_test2)$p.value,3), ";",
-						 round(fisher.test(Fisher_test3)$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 50))
+                                                 round(fisher.test(Fisher_test1[,c(1,3)])$p.value,3), ";",
+                                                 round(fisher.test(Fisher_test2[,c(1,3)])$p.value,3), ";",
+						 round(fisher.test(Fisher_test3[,c(1,3)])$p.value,3))) + scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, 50))
 		p = p + theme_bw() + scale_fill_manual(values=c("#BC3C29", "#0072B5","#E18727", "#20854E")) + axis_theme + theme(legend.position="none")
 	}
         ggsave(paste0(plot_dir, "FigS5/FigS5D_Alterated_Samples_", i_gene, ".png"), plot = p, width = 3.8, height = 4)
 }
-
-
-
-
-
 
 
 
